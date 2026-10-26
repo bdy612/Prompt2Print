@@ -3,79 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prompt2Print — Install</title>
-  <meta name="description" content="Prompt2Print for Windows: describe an object, see it in 3D, and it is printed and shipped to you. Download the installer and finish the first-start setup from this page.">
+  <title>Prompt2Print</title>
+  <meta name="description" content="Prompt2Print: describe an object, see it in 3D, and we print it and ship it to you. Download for Windows.">
   <meta name="theme-color" content="#20262E">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --p2p: #D6246E; --ink: #1E232A; --panel: #272D36; --muted: #A9B2BC; }
+    :root { --p2p: #D6246E; --muted: #A9B2BC; }
     body { font-family: "Readex Pro", "Segoe UI", system-ui, sans-serif; background: #F4F5F3; color: #1E232A; }
     .hero { background: linear-gradient(160deg, #1E232A, #2B333E 70%, #3A2130); color: #fff; }
     .hero .lead { color: var(--muted); }
     .brand b { color: var(--p2p); }
     .btn-p2p { background: var(--p2p); border-color: var(--p2p); color: #fff; font-weight: 600; padding: .9rem 1.6rem; font-size: 1.15rem; border-radius: 14px; }
     .btn-p2p:hover { background: #bf1f61; border-color: #bf1f61; color: #fff; }
-    .btn-outline-light { border-radius: 14px; }
-    .step { border: 0; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,.06); height: 100%; }
-    .step .num { width: 36px; height: 36px; border-radius: 50%; background: var(--p2p); color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-outline-light, .btn-outline-secondary { border-radius: 14px; }
+    .card-soft { border: 0; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,.06); }
+    .card-step { height: 100%; }
+    .num { width: 36px; height: 36px; border-radius: 50%; background: var(--p2p); color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: none; }
     .status { border-radius: 16px; border: 1px solid #E3E6E8; background: #fff; }
-    .status .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #B9C0C7; }
+    .status .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #B9C0C7; flex: none; }
     .status.wait .dot { background: #F0B429; animation: pulse 1.2s infinite; }
     .status.ok .dot { background: #2BB673; }
     @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
     .notice { background: #FFF6E5; border: 1px solid #F3D9A4; color: #6B4E00; border-radius: 12px; }
-    code, kbd { background: #E9ECEE; color: #1E232A; padding: 2px 6px; border-radius: 6px; }
     .screenshot { border-radius: 14px; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 20px 50px rgba(0,0,0,.35); }
-    footer a { color: #6B7480; }
-    [dir="rtl"] .num { margin-left: .75rem; margin-right: 0 !important; }
+    .swatch { width: 18px; height: 18px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.15); vertical-align: -3px; }
     .lang-btn { border-radius: 999px; }
+    footer a { color: #6B7480; }
   </style>
 </head>
 <body>
-  <!-- ======================= Header + hero ======================= -->
   <header class="hero">
     <nav class="container py-3 d-flex align-items-center justify-content-between">
       <a class="brand d-flex align-items-center gap-2 text-white text-decoration-none fs-4 fw-bold" href="#">
         <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="2" fill="#D6246E"/><rect x="3" y="12" width="14" height="4" rx="2" fill="#D6246E"/><rect x="3" y="20" width="22" height="4" rx="2" fill="#fff"/></svg>
         Prompt<b>2</b>Print
       </a>
-      <div class="d-flex gap-2">
-        <a class="btn btn-outline-light btn-sm lang-btn" href="https://github.com/bdy612/Prompt2Print" target="_blank" rel="noopener" data-i18n="source">Source code</a>
-        <button class="btn btn-outline-light btn-sm lang-btn" id="lang" type="button">العربية</button>
-      </div>
+      <button class="btn btn-outline-light btn-sm lang-btn" id="lang" type="button">العربية</button>
     </nav>
 
     <div class="container py-5">
       <div class="row align-items-center g-5">
         <div class="col-lg-7">
           <h1 class="display-5 fw-bold mb-3" data-i18n="title">Describe it. We print it and ship it.</h1>
-          <p class="lead mb-4" data-i18n="lead">A marketplace for 3D-printed products with AI Create: type what you want, see it in 3D, get the price instantly, and it is printed to order after payment. English and Arabic, one Windows installer.</p>
+          <p class="lead mb-4" data-i18n="lead">Type what you want. Prompt2Print turns it into a 3D model you can spin and resize, shows the price instantly, and after you order it is printed and delivered to your door. Or pick something ready-made from the catalog.</p>
           <a id="install" class="btn btn-p2p" href="Prompt2Print-Setup-1.1.0.msi" download>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="me-1"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
             <span data-i18n="install">Install for Windows</span>
           </a>
-          <div class="small mt-3" style="color:var(--muted)">
-            <span data-i18n="meta">Version 1.1.0 · Windows 10/11 64-bit · 36 MB · one file, nothing else to install</span>
-            · <a class="link-light" href="SHA256SUMS.txt" data-i18n="sha">SHA-256</a>
-          </div>
+          <div class="small mt-3" style="color:var(--muted)" data-i18n="meta">Free download · Windows 10/11 · one file</div>
         </div>
         <div class="col-lg-5">
-          <img class="screenshot img-fluid" src="screenshot.png" alt="Prompt2Print home page" width="1360" height="900">
+          <img class="screenshot img-fluid" src="screenshot.png" alt="Prompt2Print" width="1360" height="900">
         </div>
       </div>
     </div>
   </header>
 
   <main class="container py-5">
-    <!-- ======================= Live status (installation + bootstrap) ======================= -->
+    <!-- Live status: is Prompt2Print installed on this computer? -->
     <section id="status" class="status wait p-4 mb-5">
       <div class="d-flex align-items-start gap-3">
         <span class="dot mt-2" aria-hidden="true"></span>
         <div class="flex-grow-1">
           <h2 class="h5 mb-1" id="status-title" data-i18n="st.checking">Checking whether Prompt2Print is installed on this computer…</h2>
-          <p class="mb-2 text-secondary" id="status-text" data-i18n="st.checkingText">This page asks the app on your own computer (127.0.0.1) whether it is running. Nothing is sent anywhere else.</p>
+          <p class="mb-2 text-secondary" id="status-text" data-i18n="st.checkingText">This page only looks on your own computer. Nothing is sent anywhere.</p>
           <div class="progress mb-3 d-none" id="status-progress" role="progressbar" style="height:8px"><div class="progress-bar" style="width:0%;background:var(--p2p)"></div></div>
           <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-p2p d-none" id="status-open" href="#" data-i18n="st.open">Open Prompt2Print</a>
@@ -85,119 +78,100 @@
       </div>
     </section>
 
-    <!-- ======================= Steps ======================= -->
-    <h2 class="h3 fw-bold mb-4" data-i18n="steps.title">Installation in three steps</h2>
+    <!-- How it works -->
+    <h2 class="h3 fw-bold mb-4" data-i18n="how.title">How it works</h2>
     <div class="row g-4 mb-5">
       <div class="col-md-4">
-        <div class="card step p-4">
-          <div class="d-flex align-items-center gap-3 mb-2"><span class="num">1</span><h3 class="h5 m-0" data-i18n="s1.title">Download and run</h3></div>
-          <p class="text-secondary mb-0" data-i18n="s1.text">Click <b>Install for Windows</b>, then open <code>Prompt2Print-Setup-1.1.0.msi</code> from your Downloads folder. If Windows shows “Windows protected your PC”, click <b>More info → Run anyway</b> (the installer is not code-signed yet). The app goes to <code>C:\Program Files\Prompt2Print</code> with a desktop shortcut.</p>
+        <div class="card card-soft card-step p-4">
+          <div class="d-flex align-items-center gap-3 mb-2"><span class="num">1</span><h3 class="h5 m-0" data-i18n="h1.title">Describe it</h3></div>
+          <p class="text-secondary mb-0" data-i18n="h1.text">Write what you want in English or Arabic — a pen holder shaped like a castle tower, a chess knight, an owl figurine. The model appears in seconds and you can rotate it, resize it and pick a colour.</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card step p-4">
-          <div class="d-flex align-items-center gap-3 mb-2"><span class="num">2</span><h3 class="h5 m-0" data-i18n="s2.title">First start</h3></div>
-          <p class="text-secondary mb-0" data-i18n="s2.text">Open <b>Prompt2Print</b> from the desktop. The first start takes about 30 seconds while the catalog and product photos are created. Come back to this page: it detects the app and shows the next step.</p>
+        <div class="card card-soft card-step p-4">
+          <div class="d-flex align-items-center gap-3 mb-2"><span class="num">2</span><h3 class="h5 m-0" data-i18n="h2.title">See the price</h3></div>
+          <p class="text-secondary mb-0" data-i18n="h2.text">One final price, in your currency, including delivery to your country. It updates live as you change the size, material or colour.</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card step p-4">
-          <div class="d-flex align-items-center gap-3 mb-2"><span class="num">3</span><h3 class="h5 m-0" data-i18n="s3.title">Set up the shop</h3></div>
-          <p class="text-secondary mb-0" data-i18n="s3.text">In the app, open <b>Settings</b> and add your Tap Payments key, a Meshy or Tripo key for AI models, and your Bambu Lab P2S printer (IP, serial number, LAN access code, AMS slots). Then the shop is ready for customers.</p>
+        <div class="card card-soft card-step p-4">
+          <div class="d-flex align-items-center gap-3 mb-2"><span class="num">3</span><h3 class="h5 m-0" data-i18n="h3.title">Printed and shipped</h3></div>
+          <p class="text-secondary mb-0" data-i18n="h3.text">After you order, your item is printed to order and shipped to you. Follow every step from your orders page until it arrives.</p>
         </div>
       </div>
     </div>
 
-    <!-- ======================= What you get ======================= -->
+    <!-- Materials and durability -->
     <div class="row g-4 mb-5">
       <div class="col-lg-6">
-        <h2 class="h4 fw-bold" data-i18n="inside.title">What is inside</h2>
-        <ul class="text-secondary" id="inside-list">
-          <li data-i18n="inside.1">Shop with catalog, cart, accounts, orders and tracking, English and Arabic (RTL), mobile friendly</li>
-          <li data-i18n="inside.2">AI Create: prompt → 3D model you can rotate, resize and price before buying (Meshy/Tripo, with a built-in generator as fallback)</li>
-          <li data-i18n="inside.3">Live pricing: item price, tax and shipping by country, service fee, shown in the customer's currency</li>
-          <li data-i18n="inside.4">Automatic printing after payment on a Bambu Lab P2S Combo: slice → queue → print → status updates</li>
-          <li data-i18n="inside.5">Admin panel: orders, products, materials and colours in stock, printers, pricing, taxes, shipping, reports, security log</li>
-          <li data-i18n="inside.6">Complete source code installed with the app (<code>…\Prompt2Print\app</code>)</li>
-        </ul>
+        <h2 class="h4 fw-bold" data-i18n="mat.title">Materials</h2>
+        <p class="text-secondary" data-i18n="mat.intro">You choose the material and colour for every item:</p>
+        <div class="card card-soft p-3 mb-3">
+          <h3 class="h6 fw-bold mb-1">ABS <span class="text-secondary fw-normal" data-i18n="mat.absTag">— standard</span></h3>
+          <p class="text-secondary small mb-2" data-i18n="mat.abs">Tough and impact-resistant with a matte finish. Handles heat up to about 85 °C.</p>
+          <div><span class="swatch" style="background:#111"></span> <span class="swatch" style="background:#fff"></span> <span class="swatch" style="background:#8a8f94"></span> <span class="swatch" style="background:#d12b2b"></span> <span class="swatch" style="background:#2456c9"></span> <span class="swatch" style="background:#f2c417"></span></div>
+        </div>
+        <div class="card card-soft p-3">
+          <h3 class="h6 fw-bold mb-1">ASA <span class="text-secondary fw-normal" data-i18n="mat.asaTag">— outdoor</span></h3>
+          <p class="text-secondary small mb-2" data-i18n="mat.asa">Like ABS, plus UV and weather resistance for balconies and gardens. Handles heat up to about 100 °C.</p>
+          <div><span class="swatch" style="background:#fff"></span> <span class="swatch" style="background:#111"></span></div>
+        </div>
       </div>
       <div class="col-lg-6">
-        <h2 class="h4 fw-bold" data-i18n="req.title">Requirements</h2>
+        <h2 class="h4 fw-bold" data-i18n="dur.title">Made to last</h2>
         <ul class="text-secondary">
-          <li data-i18n="req.1">Windows 10 or 11, 64-bit. Microsoft Edge (included in Windows) for the app window.</li>
-          <li data-i18n="req.2">No other installs: the Node.js runtime is inside the installer. Your data stays in <code>%LOCALAPPDATA%\Prompt2Print</code> and survives updates.</li>
-          <li data-i18n="req.3">For real orders: a Tap Payments account (cards from anywhere in the world). For AI models: a Meshy or Tripo key with credits.</li>
-          <li data-i18n="req.4">Printer: Bambu Lab P2S Combo on the same network, LAN mode with developer mode on.</li>
+          <li data-i18n="dur.1">Walls at least 2 mm thick and a solid internal structure, checked on every model before it is printed</li>
+          <li data-i18n="dur.2">Rounded edges, compact shapes — no thin spikes that snap</li>
+          <li data-i18n="dur.3">If a design would be fragile at the size you chose, the app tells you before you order</li>
+          <li data-i18n="dur.4">Sizes up to 25 cm</li>
         </ul>
-        <div class="notice p-3 mt-3 small"><b data-i18n="notice.b">Not for food or drink.</b> <span data-i18n="notice.t">Printed items are not food-safe. Do not microwave, bake, or dishwash. Heat-resistant up to ~85°C (ABS) / ~100°C (ASA). Keep away from open flame.</span></div>
+        <div class="notice p-3 mt-3 small"><b data-i18n="notice.b">Not for food or drink.</b> <span data-i18n="notice.t">Printed items are not food-safe. Do not microwave, bake, or dishwash. Keep away from open flame.</span></div>
       </div>
     </div>
 
-    <!-- ======================= FAQ ======================= -->
-    <h2 class="h4 fw-bold mb-3" data-i18n="faq.title">Questions</h2>
-    <div class="accordion mb-4" id="faq">
-      <div class="accordion-item">
-        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q1" data-i18n="faq.q1">Why does Windows warn me about the installer?</button></h3>
-        <div id="q1" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body text-secondary" data-i18n="faq.a1">SmartScreen warns about any installer that is not signed with a paid code-signing certificate. The installer is built from the public source in this repository; its SHA-256 is published next to it. Click “More info → Run anyway”.</div></div>
-      </div>
-      <div class="accordion-item">
-        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" data-i18n="faq.q2">The page says the app is not detected, but I installed it.</button></h3>
-        <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body text-secondary" data-i18n="faq.a2">Start Prompt2Print from the desktop shortcut and wait for its window to open, then press “Check again”. The page can only see the app on the same computer. Some browsers ask for permission to reach a local app; allow it.</div></div>
-      </div>
-      <div class="accordion-item">
-        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" data-i18n="faq.q3">How do I update or uninstall?</button></h3>
-        <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body text-secondary" data-i18n="faq.a3">Run a newer installer over the old one; your shop data is kept. Uninstall from Windows Settings → Apps; the data folder is left in place.</div></div>
-      </div>
-    </div>
+    <!-- Install -->
+    <h2 class="h4 fw-bold mb-3" data-i18n="inst.title">Installing on Windows</h2>
+    <ol class="text-secondary mb-5">
+      <li data-i18n="inst.1">Click <b>Install for Windows</b> and open the downloaded file.</li>
+      <li data-i18n="inst.2">If Windows shows “Windows protected your PC”, click <b>More info → Run anyway</b>.</li>
+      <li data-i18n="inst.3">Open <b>Prompt2Print</b> from your desktop. The first start takes about half a minute.</li>
+    </ol>
   </main>
 
   <footer class="container py-4 small text-secondary border-top">
-    <span data-i18n="footer">Source: </span><a href="https://github.com/bdy612/Prompt2Print">github.com/bdy612/Prompt2Print</a> · <a href="https://github.com/bdy612/Prompt2Print/raw/main/docs/Prompt2Print-Setup-1.1.0.msi" data-i18n="mirror">direct download link</a>
+    © 2026 Prompt2Print · <a href="SHA256SUMS.txt" data-i18n="sha">file checksum</a>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script>
-    // ---------- Arabic / English ----------
     const AR = {
-      source: 'الكود المصدري', title: 'صِفه. نطبعه ونشحنه إليك.',
-      lead: 'متجر لمنتجات مطبوعة ثلاثية الأبعاد مع «إنشاء بالذكاء الاصطناعي»: اكتب ما تريد، شاهده مجسّماً، اعرف السعر فوراً، ويُطبع بعد الدفع. عربي وإنجليزي، مثبّت واحد لويندوز.',
-      install: 'تثبيت لويندوز', meta: 'الإصدار 1.1.0 · ويندوز 10/11 (64 بت) · 36 MB · ملف واحد، لا يحتاج شيئاً آخر', sha: 'SHA-256',
-      'st.checking': 'جارٍ التحقق هل Prompt2Print مثبّت على هذا الجهاز…',
-      'st.checkingText': 'تسأل هذه الصفحة التطبيق على جهازك (127.0.0.1) إن كان يعمل. لا يُرسل شيء إلى أي مكان آخر.',
+      title: 'صِفه. نطبعه ونشحنه إليك.',
+      lead: 'اكتب ما تريد. يحوّله Prompt2Print إلى نموذج ثلاثي الأبعاد تدوّره وتغيّر حجمه، ويعرض السعر فوراً، وبعد الطلب يُطبع ويصلك إلى باب بيتك. أو اختر شيئاً جاهزاً من الكتالوج.',
+      install: 'تثبيت لويندوز', meta: 'تحميل مجاني · ويندوز 10/11 · ملف واحد',
+      'st.checking': 'جارٍ التحقق هل Prompt2Print مثبّت على هذا الجهاز…', 'st.checkingText': 'تبحث هذه الصفحة على جهازك فقط. لا يُرسل شيء إلى أي مكان.',
       'st.open': 'افتح Prompt2Print', 'st.download': 'حمّل المثبّت',
-      'st.none': 'لم يُكتشف Prompt2Print على هذا الجهاز', 'st.noneText': 'حمّل المثبّت وشغّله، ثم افتح Prompt2Print من سطح المكتب. تتحقق هذه الصفحة تلقائياً كل بضع ثوانٍ.',
-      'st.seeding': 'التشغيل الأول: جارٍ إنشاء الكتالوج…', 'st.seedingText': 'يستغرق هذا نحو 30 ثانية في أول مرة فقط.',
-      'st.ready': 'Prompt2Print مثبّت ويعمل', 'st.readyText': 'كل شيء جاهز. افتح المتجر وأكمل الإعداد من داخله.',
-      'st.again': 'تحقق مرة أخرى',
-      'steps.title': 'التثبيت في ثلاث خطوات',
-      's1.title': 'حمّل وشغّل', 's1.text': 'اضغط <b>تثبيت لويندوز</b> ثم افتح <code>Prompt2Print-Setup-1.1.0.msi</code> من مجلد التنزيلات. إن ظهر «Windows protected your PC» اضغط <b>More info → Run anyway</b> (المثبّت غير موقّع بشهادة بعد). يُثبّت التطبيق في <code>C:\\Program Files\\Prompt2Print</code> مع اختصار على سطح المكتب.',
-      's2.title': 'التشغيل الأول', 's2.text': 'افتح <b>Prompt2Print</b> من سطح المكتب. أول تشغيل يستغرق نحو 30 ثانية لإنشاء الكتالوج وصور المنتجات. عُد إلى هذه الصفحة: تكتشف التطبيق وتعرض الخطوة التالية.',
-      's3.title': 'إعداد المتجر', 's3.text': 'من داخل التطبيق افتح <b>الإعدادات</b> وأضف مفتاح Tap للدفع، ومفتاح Meshy أو Tripo لنماذج الذكاء الاصطناعي، وطابعة Bambu Lab P2S (العنوان، الرقم التسلسلي، رمز LAN، فتحات AMS). بعدها المتجر جاهز للعملاء.',
-      'inside.title': 'ماذا بداخله', 'inside.1': 'متجر بكتالوج وسلة وحسابات وطلبات وتتبع، عربي (RTL) وإنجليزي، يعمل على الجوال',
-      'inside.2': 'إنشاء بالذكاء الاصطناعي: وصف → نموذج ثلاثي الأبعاد تدوّره وتغيّر حجمه وتسعّره قبل الشراء (Meshy/Tripo، ومولّد مدمج كبديل)',
-      'inside.3': 'تسعير فوري: سعر القطعة، الضريبة والشحن حسب الدولة، رسوم الخدمة، بعملة العميل',
-      'inside.4': 'طباعة تلقائية بعد الدفع على Bambu Lab P2S Combo: تقطيع → طابور → طباعة → تحديث الحالة',
-      'inside.5': 'لوحة إدارة: الطلبات، المنتجات، الخامات والألوان المتوفرة، الطابعات، التسعير، الضرائب، الشحن، التقارير، سجل الأمان',
-      'inside.6': 'الكود المصدري الكامل يُثبّت مع التطبيق (<code>…\\Prompt2Print\\app</code>)',
-      'req.title': 'المتطلبات', 'req.1': 'ويندوز 10 أو 11 (64 بت). Microsoft Edge (موجود في ويندوز) لنافذة التطبيق.',
-      'req.2': 'لا تثبيتات أخرى: بيئة Node.js داخل المثبّت. بياناتك في <code>%LOCALAPPDATA%\\Prompt2Print</code> وتبقى بعد التحديث.',
-      'req.3': 'للطلبات الحقيقية: حساب Tap Payments (بطاقات من أي مكان في العالم). لنماذج الذكاء الاصطناعي: مفتاح Meshy أو Tripo برصيد.',
-      'req.4': 'الطابعة: Bambu Lab P2S Combo على نفس الشبكة، وضع LAN مع تفعيل وضع المطوّر.',
-      'notice.b': 'ليس للطعام أو الشراب.', 'notice.t': 'المطبوعات ليست آمنة للطعام. لا تضعها في الميكروويف أو الفرن أو غسالة الصحون. تتحمل الحرارة حتى ~85° (ABS) / ~100° (ASA). أبعدها عن اللهب.',
-      'faq.title': 'أسئلة', 'faq.q1': 'لماذا يحذّرني ويندوز من المثبّت؟', 'faq.a1': 'يحذّر SmartScreen من أي مثبّت غير موقّع بشهادة مدفوعة. المثبّت مبني من الكود العلني في هذا المستودع وبصمته SHA-256 منشورة بجواره. اضغط «More info → Run anyway».',
-      'faq.q2': 'تقول الصفحة إن التطبيق غير مكتشف رغم أني ثبّته.', 'faq.a2': 'شغّل Prompt2Print من اختصار سطح المكتب وانتظر فتح نافذته ثم اضغط «تحقق مرة أخرى». ترى الصفحة التطبيق على نفس الجهاز فقط. قد يطلب المتصفح إذناً للوصول إلى تطبيق محلي؛ اسمح له.',
-      'faq.q3': 'كيف أحدّث أو أزيل التطبيق؟', 'faq.a3': 'شغّل مثبّتاً أحدث فوق القديم وتبقى بيانات المتجر. الإزالة من إعدادات ويندوز → التطبيقات؛ مجلد البيانات يبقى.',
-      footer: 'المصدر: ', mirror: 'رابط تحميل مباشر',
+      'st.none': 'Prompt2Print غير مثبّت على هذا الجهاز', 'st.noneText': 'حمّله وشغّل المثبّت، ثم افتح Prompt2Print من سطح المكتب.',
+      'st.seeding': 'التشغيل الأول: جارٍ التجهيز…', 'st.seedingText': 'نحو نصف دقيقة في أول مرة فقط.',
+      'st.ready': 'Prompt2Print مثبّت ويعمل', 'st.readyText': 'كل شيء جاهز.', 'st.again': 'تحقق مرة أخرى',
+      'how.title': 'كيف يعمل', 'h1.title': 'صِفه', 'h1.text': 'اكتب ما تريد بالعربية أو الإنجليزية — حامل أقلام على شكل برج قلعة، حصان شطرنج، مجسم بومة. يظهر النموذج خلال ثوانٍ وتستطيع تدويره وتغيير حجمه واختيار لونه.',
+      'h2.title': 'اعرف السعر', 'h2.text': 'سعر نهائي واحد بعملتك، شاملاً التوصيل إلى بلدك. يتغير فوراً مع تغيير الحجم أو الخامة أو اللون.',
+      'h3.title': 'يُطبع ويُشحن', 'h3.text': 'بعد طلبك تُطبع قطعتك خصيصاً لك وتُشحن إليك. تابع كل خطوة من صفحة طلباتك حتى تصلك.',
+      'mat.title': 'الخامات', 'mat.intro': 'أنت تختار الخامة واللون لكل قطعة:',
+      'mat.absTag': '— الأساسية', 'mat.abs': 'متينة ومقاومة للصدمات بلمسة مطفية. تتحمل الحرارة حتى نحو 85°.',
+      'mat.asaTag': '— للخارج', 'mat.asa': 'مثل ABS مع مقاومة للشمس والطقس للشرفات والحدائق. تتحمل الحرارة حتى نحو 100°.',
+      'dur.title': 'مصنوعة لتدوم', 'dur.1': 'جدران بسُمك 2 مم على الأقل وبنية داخلية صلبة، تُفحص في كل نموذج قبل الطباعة',
+      'dur.2': 'حواف مستديرة وأشكال متماسكة — لا أطراف رفيعة تنكسر', 'dur.3': 'إن كان التصميم هشاً بالحجم الذي اخترته يخبرك التطبيق قبل الطلب', 'dur.4': 'أحجام حتى 25 سم',
+      'notice.b': 'ليس للطعام أو الشراب.', 'notice.t': 'المطبوعات ليست آمنة للطعام. لا تضعها في الميكروويف أو الفرن أو غسالة الصحون. أبعدها عن اللهب.',
+      'inst.title': 'التثبيت على ويندوز', 'inst.1': 'اضغط <b>تثبيت لويندوز</b> وافتح الملف الذي نزل.', 'inst.2': 'إن ظهر «Windows protected your PC» اضغط <b>More info → Run anyway</b>.', 'inst.3': 'افتح <b>Prompt2Print</b> من سطح المكتب. أول تشغيل يستغرق نحو نصف دقيقة.',
+      sha: 'بصمة الملف',
     };
     const EN = {};
     document.querySelectorAll('[data-i18n]').forEach((el) => { EN[el.dataset.i18n] = el.innerHTML; });
-    EN['st.none'] = 'Prompt2Print is not detected on this computer';
-    EN['st.noneText'] = 'Download and run the installer, then open Prompt2Print from the desktop. This page checks again automatically every few seconds.';
-    EN['st.seeding'] = 'First start: creating the catalog…';
-    EN['st.seedingText'] = 'This takes about 30 seconds, only the first time.';
-    EN['st.ready'] = 'Prompt2Print is installed and running';
-    EN['st.readyText'] = 'Everything is ready. Open the shop and finish the setup inside the app.';
-    EN['st.again'] = 'Check again';
+    Object.assign(EN, {
+      'st.none': 'Prompt2Print is not installed on this computer', 'st.noneText': 'Download and run the installer, then open Prompt2Print from the desktop.',
+      'st.seeding': 'First start: getting ready…', 'st.seedingText': 'About half a minute, only the first time.',
+      'st.ready': 'Prompt2Print is installed and running', 'st.readyText': 'Everything is ready.', 'st.again': 'Check again',
+    });
     let lang = localStorage.getItem('p2p-site-lang') || (navigator.language.startsWith('ar') ? 'ar' : 'en');
     const T = (k) => (lang === 'ar' ? AR[k] : EN[k]) || EN[k] || '';
     function applyLang() {
@@ -209,12 +183,9 @@
     }
     document.getElementById('lang').addEventListener('click', () => { lang = lang === 'ar' ? 'en' : 'ar'; localStorage.setItem('p2p-site-lang', lang); applyLang(); });
 
-    // ---------- Installation + bootstrap detection ----------
-    // The installed app listens on 127.0.0.1 (ports 39390–39393, or 3939 when run from source).
-    // Its /api/health answers this page (CORS) with the version and the first-start progress.
-    // The page then shows the right next step.
-    const PORTS = [39390, 39391, 39392, 39393, 3939];
-    let found = null;   // { port, health }
+    // Is the app installed and running on this computer? (asks the app itself, on 127.0.0.1)
+    const PORTS = [39390, 39391, 39392, 39393];
+    let found = null;
     async function probe(port) {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 1500);
@@ -227,10 +198,7 @@
     }
     async function check() {
       found = null;
-      for (const port of PORTS) {
-        const h = await probe(port);
-        if (h) { found = { port, health: h }; break; }
-      }
+      for (const port of PORTS) { const h = await probe(port); if (h) { found = { port, health: h }; break; } }
       renderStatus();
     }
     function renderStatus() {
@@ -254,7 +222,6 @@
         dl.classList.remove('d-none');
         return;
       }
-      const base = `http://127.0.0.1:${found.port}`;
       const h = found.health;
       if (h.settingUp) {
         box.className = 'status wait p-4 mb-5';
@@ -264,8 +231,8 @@
         return;
       }
       box.className = 'status ok p-4 mb-5';
-      title.textContent = `${T('st.ready')} (v${h.version || '1.1.0'})`; text.textContent = T('st.readyText');
-      open.href = `${base}/`; open.classList.remove('d-none');
+      title.textContent = T('st.ready'); text.textContent = T('st.readyText');
+      open.href = `http://127.0.0.1:${found.port}/`; open.classList.remove('d-none');
     }
     applyLang();
     check();

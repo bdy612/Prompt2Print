@@ -121,7 +121,7 @@ sign_file "$STAGE/Prompt2Print.exe"
 cp "$NODE_DIR/node.exe" "$STAGE/runtime/node.exe"
 cp "$NODE_DIR/LICENSE" "$STAGE/runtime/NODE-LICENSE.txt"
 items=()
-for item in server public tests scripts packaging package.json README.md THIRD_PARTY_NOTICES.md start-dev.bat .env.example .gitignore LICENSE LICENSE.md LICENSE.txt; do
+for item in server public tests scripts packaging package.json README.md THIRD_PARTY_NOTICES.md start-dev.bat .gitignore LICENSE LICENSE.md LICENSE.txt; do
   [ -e "$APP_SRC/$item" ] && items+=("$item")
 done
 tar -C "$APP_SRC" \
