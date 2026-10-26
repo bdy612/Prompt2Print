@@ -4,7 +4,7 @@ import { state, destQuery } from '../state.js';
 import { html, raw, money, num, toast, dims, esc, safetyNotice } from '../ui.js';
 import { mountOptions } from '../options.js';
 import { createViewer, webglAvailable } from '../viewer.js';
-import { setCartCount } from '../app.js';
+import { setCartCount, replaceUrl } from '../app.js';
 
 const EXAMPLES = {
   en: ['a hexagonal pen holder shaped like a castle tower', 'a tall twisted vase', 'an owl figurine', 'a chess knight',
@@ -79,7 +79,7 @@ export default async function create(view, { query }) {
 
   async function select(d) {
     current = d;
-    history.replaceState(history.state, '', `/create${qs({ d: d.id })}`);
+    replaceUrl(`/create${qs({ d: d.id })}`);
     ta.value = d.prompt;
     renderVersions();
     view.querySelector('[data-regen]').hidden = false;
@@ -161,7 +161,7 @@ export default async function create(view, { query }) {
       current = d;
       view.querySelector('[data-empty]').hidden = true;
       renderVersions();
-      history.replaceState(history.state, '', `/create${qs({ d: d.id })}`);
+      replaceUrl(`/create${qs({ d: d.id })}`);
       startPolling(d.id);
     } catch (err) {
       toast(err.message, 'err');

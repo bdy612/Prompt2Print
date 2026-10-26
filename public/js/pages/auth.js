@@ -1,15 +1,23 @@
-import { api } from '../api.js';
+import { sb, loadSessionUser } from '../api.js';
 import { t, getLocale } from '../i18n.js';
 import { state } from '../state.js';
 import { html, toast, formData } from '../ui.js';
 import { signedIn, navigate as go } from '../app.js';
 
+const friendly = (msg) => {
+  const m = String(msg || '');
+  if (/invalid login credentials/i.test(m)) return t('auth.badLogin');
+  if (/already registered|already exists/i.test(m)) return t('auth.emailTaken');
+  if (/email not confirmed/i.test(m)) return t('auth.confirmEmail');
+  if (/password should be at least|weak/i.test(m)) return t('auth.passwordHint');
+  if (/rate limit|too many/i.test(m)) return t('auth.tooMany');
+  return m;
+};
+
 export default async function auth(view, { path, query }) {
   const signup = path === '/signup';
   const next = query.next && query.next.startsWith('/') && !query.next.startsWith('//') ? query.next : '/';
   if (state.user) { go(next, { replace: true }); return; }
-  if (!signup && state.boot.adminSetupNeeded) return setupAdmin(view);
-  const showDemo = state.boot.demo;
   view.innerHTML = String(html`<div class="wrap"><div class="panel auth-card">
     <h1 style="font-size:26px;margin-bottom:16px">${signup ? t('auth.signup') : t('auth.signin')}</h1>
     <form data-auth style="display:grid;gap:14px">
@@ -22,63 +30,37 @@ export default async function auth(view, { path, query }) {
     </form>
     <p class="small" style="margin:16px 0 0">${signup ? t('auth.haveAccount') : t('auth.noAccount')}
       <a href="${signup ? '/signin' : '/signup'}${query.next ? `?next=${encodeURIComponent(next)}` : ''}" data-link>${signup ? t('auth.signin') : t('auth.signup')}</a></p>
-    ${showDemo && !signup ? html`<div class="demo-box"><strong>${t('auth.demo')}</strong><br>
-      <button type="button" data-demo="demo@prompt2print.local" data-pw="Demo#2026">demo@prompt2print.local</button> · Demo#2026<br>
-      <button type="button" data-demo="admin@prompt2print.local" data-pw="Admin#2026">admin@prompt2print.local</button> · Admin#2026</div>` : ''}
   </div></div>`);
 
   const form = view.querySelector('[data-auth]');
-  view.querySelectorAll('[data-demo]').forEach((b) => b.addEventListener('click', () => {
-    form.email.value = b.dataset.demo;
-    form.password.value = b.dataset.pw;
-    form.requestSubmit();
-  }));
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = view.querySelector('[data-error]');
     err.hidden = true;
     const btn = form.querySelector('button.btn-primary');
     btn.disabled = true;
+    const f = formData(form);
+    const email = String(f.email || '').trim().toLowerCase();
     try {
-      const res = await api(signup ? '/api/auth/signup' : '/api/auth/login', { method: 'POST', body: { ...formData(form), locale: getLocale() } });
-      await signedIn(res.user);
-      go(res.user.role === 'admin' && next === '/' ? '/admin' : next, { replace: true });
-    } catch (ex) {
-      err.textContent = ex.message;
-      err.hidden = false;
-      btn.disabled = false;
-    }
-  });
-  return () => {};
-}
-
-// First start: the admin account has no password yet; the owner sets it from this computer.
-function setupAdmin(view) {
-  view.innerHTML = String(html`<div class="wrap"><div class="panel auth-card">
-    <h1 style="font-size:26px;margin-bottom:8px">${t('auth.setupTitle')}</h1>
-    <p class="muted small" style="margin-bottom:16px">${t('auth.setupHint')}</p>
-    <form data-setup style="display:grid;gap:14px">
-      <label class="field">${t('auth.email')}<input class="input" type="email" value="${state.boot.adminEmail || ''}" readonly dir="ltr"></label>
-      <label class="field">${t('auth.password')}<input class="input" type="password" name="password" required minlength="10" autocomplete="new-password" dir="ltr">
-        <span class="hint">${t('auth.setupHintPw')}</span></label>
-      <label class="field">${t('auth.setupConfirm')}<input class="input" type="password" name="confirm" required minlength="10" autocomplete="new-password" dir="ltr"></label>
-      <p class="error-text" data-error hidden></p>
-      <button class="btn btn-primary btn-block">${t('auth.setupButton')}</button>
-    </form>
-  </div></div>`);
-  const form = view.querySelector('[data-setup]');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const err = view.querySelector('[data-error]');
-    err.hidden = true;
-    const { password, confirm } = formData(form);
-    if (password !== confirm) { err.textContent = t('auth.setupMismatch'); err.hidden = false; return; }
-    const btn = form.querySelector('button.btn-primary');
-    btn.disabled = true;
-    try {
-      const res = await api('/api/auth/setup-admin', { method: 'POST', body: { password } });
-      await signedIn(res.user);
-      go('/admin', { replace: true });
+      if (signup) {
+        const name = String(f.name || '').trim().slice(0, 80);
+        if (name.length < 2) throw new Error(t('auth.nameRequired'));
+        const { data, error } = await sb.auth.signUp({ email, password: f.password, options: { data: { name, locale: getLocale() } } });
+        if (error) throw new Error(friendly(error.message));
+        if (!data.session) {
+          // Email confirmation is on in the project: tell the customer to check their inbox.
+          view.querySelector('.auth-card').innerHTML = String(html`<h1 style="font-size:24px;margin-bottom:10px">${t('auth.checkInbox')}</h1><p class="muted">${t('auth.checkInboxHint', { email })}</p>
+            <a class="btn btn-primary" style="margin-top:16px" href="/signin" data-link>${t('auth.signin')}</a>`);
+          return;
+        }
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email, password: f.password });
+        if (error) throw new Error(friendly(error.message));
+      }
+      const user = await loadSessionUser({ fresh: true });
+      if (user.disabled) { await sb.auth.signOut(); throw new Error(t('auth.disabled')); }
+      await signedIn(user);
+      go(user.role === 'admin' && next === '/' ? '/admin' : next, { replace: true });
     } catch (ex) {
       err.textContent = ex.message;
       err.hidden = false;

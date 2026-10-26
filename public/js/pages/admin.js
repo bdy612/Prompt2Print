@@ -3,7 +3,7 @@ import { api, qs } from '../api.js';
 import { getLocale, tr, t } from '../i18n.js';
 import { state } from '../state.js';
 import { html, raw, money, num, date, dateTime, dims, toast, modal, formData, statusPill, esc, countryName } from '../ui.js';
-import { navigate } from '../app.js';
+import { navigate, currentUrl } from '../app.js';
 
 const L = {
   en: {
@@ -113,7 +113,7 @@ const NAV = [
 let refreshTimer = null;
 
 export default async function admin(view, { params, query }) {
-  if (!state.user) { navigate(`/signin?next=${encodeURIComponent(location.pathname)}`, { replace: true }); return; }
+  if (!state.user) { navigate(`/signin?next=${encodeURIComponent(currentUrl().pathname)}`, { replace: true }); return; }
   if (state.user.role !== 'admin') { navigate('/', { replace: true }); return; }
   const section = params.section || 'overview';
   view.innerHTML = String(html`<div class="admin">

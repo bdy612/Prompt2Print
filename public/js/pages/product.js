@@ -4,7 +4,7 @@ import { state, destQuery } from '../state.js';
 import { html, raw, money, num, stars, productCard, toast, date, dims, countryName, icons, esc, safetyNotice } from '../ui.js';
 import { mountOptions } from '../options.js';
 import { createViewer, webglAvailable } from '../viewer.js';
-import { setCartCount, navigate } from '../app.js';
+import { setCartCount, navigate, currentUrl } from '../app.js';
 
 export default async function product(view, { params }) {
   const p = await api(`/api/products/${encodeURIComponent(params.slug)}${qs(destQuery())}`);
@@ -137,7 +137,7 @@ export default async function product(view, { params }) {
   });
 
   view.querySelector('[data-wish]').addEventListener('click', async (e) => {
-    if (!state.user) return navigate(`/signin?next=${encodeURIComponent(location.pathname)}`);
+    if (!state.user) return navigate(`/signin?next=${encodeURIComponent(currentUrl().pathname)}`);
     const btn = e.currentTarget;
     try {
       if (inWishlist) await api(`/api/wishlist/${p.id}`, { method: 'DELETE' });
@@ -172,7 +172,7 @@ export default async function product(view, { params }) {
             <input class="input" name="title" placeholder="${t('pdp.reviewTitle')}" maxlength="120">
             <textarea class="input" name="body" placeholder="${t('pdp.reviewBody')}" required minlength="5"></textarea>
             <button class="btn btn-dark">${t('pdp.submitReview')}</button>
-          </form>` : html`<p class="small" style="margin-top:20px"><a href="/signin?next=${encodeURIComponent(location.pathname)}" data-link>${t('pdp.signinReview')}</a></p>`}
+          </form>` : html`<p class="small" style="margin-top:20px"><a href="/signin?next=${encodeURIComponent(currentUrl().pathname)}" data-link>${t('pdp.signinReview')}</a></p>`}
       </div>
       <div>${list.length ? list.map((r) => html`<article class="review" lang="${r.locale}" dir="${r.locale === 'ar' ? 'rtl' : 'ltr'}">
           ${stars(r.rating)}<h4>${r.title || ''}</h4><p style="margin:0 0 6px">${r.body}</p>

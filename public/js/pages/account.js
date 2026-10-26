@@ -2,12 +2,12 @@ import { api } from '../api.js';
 import { t, tr, getLocale, setLocale } from '../i18n.js';
 import { state } from '../state.js';
 import { html, raw, toast, productCard, addressForm, addressText, formData, modal, date } from '../ui.js';
-import { navigate, refreshBoot, render as rerender } from '../app.js';
+import { navigate, refreshBoot, render as rerender, currentUrl } from '../app.js';
 
 const TABS = ['profile', 'addresses', 'wishlist', 'designs'];
 
 export default async function account(view, { params }) {
-  if (!state.user) { navigate(`/signin?next=${encodeURIComponent(location.pathname)}`, { replace: true }); return; }
+  if (!state.user) { navigate(`/signin?next=${encodeURIComponent(currentUrl().pathname)}`, { replace: true }); return; }
   const tab = TABS.includes(params.tab) ? params.tab : 'profile';
   view.innerHTML = String(html`<div class="wrap account">
     <nav class="side-nav" aria-label="${t('account.title')}">

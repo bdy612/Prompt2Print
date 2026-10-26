@@ -35,7 +35,7 @@ export default async function order(view, { params, query, navigate }) {
   let o;
   if (query.session_id || query.tap_return || query.tap_id) {
     o = await api(`/api/orders/${params.number}/confirm`, { method: 'POST', body: { sessionId: query.session_id, tapId: query.tap_id } }).catch(() => null);
-    history.replaceState({}, '', `/orders/${params.number}`);
+    replaceUrl(`/orders/${params.number}`);
     if (o && o.status === 'pending_payment') toast(t('pay.failed'), 'err');
     else if (o) toast(t('pay.success'));
   }

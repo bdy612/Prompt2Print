@@ -4,10 +4,16 @@
   "description": "Marketplace for 3D-printed products with AI prompt-to-3D-model creation, live pricing and automatic printing.",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.13" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server/index.js",
     "test": "node --disable-warning=ExperimentalWarning --test \"tests/*.test.js\"",
     "build:windows": "bash scripts/build-windows.sh"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "esbuild": "^0.24.2"
   }
 }

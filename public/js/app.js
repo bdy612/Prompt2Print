@@ -1,5 +1,5 @@
 // App shell: boot, layout, routing, language and delivery destination.
-import { api, qs } from './api.js';
+import { api, qs, loadSessionUser } from './api.js';
 import { t, tr, setLocale, getLocale } from './i18n.js';
 import { state, loadSavedDestination, saveDestination } from './state.js';
 import { html, raw, icons, modal, countryOptions, countryName, toast } from './ui.js';
@@ -35,34 +35,29 @@ function match(pathname) {
 let cleanup = null;
 let renderToken = 0;
 
+// The app runs from a file:// bundle (and from any static host), so routes live in the hash:
+// index.html#/p/chess-knight?country=SA. `currentUrl()` presents that as a normal URL.
+export function currentUrl() {
+  const h = location.hash.startsWith('#') ? location.hash.slice(1) : '';
+  return new URL(h.startsWith('/') ? h : `/${h}`, 'http://app.local');
+}
 export function navigate(to, { replace = false } = {}) {
-  if (replace) history.replaceState({}, '', to); else history.pushState({}, '', to);
+  const target = `#${to.startsWith('/') ? to : `/${to}`}`;
+  if (replace) history.replaceState(history.state, '', target);
+  else if (location.hash !== target) history.pushState({}, '', target);
   render();
 }
+export function replaceUrl(to) { history.replaceState(history.state, '', `#${to}`); }
 
 export async function refreshBoot() {
-  try {
-    state.boot = await api(`/api/bootstrap${qs({ country: loadSavedDestination()?.country, region: loadSavedDestination()?.region })}`);
-  } catch (err) {
-    if (err.code === 'setting_up') return showSetup(err.body.setup);
-    throw err;
-  }
+  await loadSessionUser();
+  state.boot = await api(`/api/bootstrap${qs({ country: loadSavedDestination()?.country, region: loadSavedDestination()?.region })}`);
   state.user = state.boot.user;
   state.cartCount = state.boot.cartCount;
   state.display = state.boot.display || state.display;
   const saved = loadSavedDestination();
-  state.destination = saved && !state.user ? saved : state.boot.destination;
+  state.destination = saved?.country ? saved : state.boot.destination;
   return true;
-}
-
-function showSetup(progress) {
-  const pct = progress?.total ? Math.round((progress.done / progress.total) * 100) : 5;
-  document.getElementById('app').innerHTML = String(html`<div class="setup-screen"><div>
-    <img src="/img/logo.svg" alt="" width="64" height="64" style="margin:0 auto 18px">
-    <h1 style="font-size:26px">${t('common.setup')}</h1><p style="color:#AEB7C1">${t('common.setupHint')}</p>
-    <div class="progress"><i style="width:${pct}%"></i></div></div></div>`);
-  setTimeout(() => boot(), 1200);
-  return false;
 }
 
 export function setCartCount(n) {
@@ -75,13 +70,12 @@ function header() {
   const u = state.user;
   const cats = state.boot.categories;
   return html`
-  ${state.boot.payments.provider === 'test' ? html`<div class="test-banner">${t('test.banner')}</div>` : ''}
   <header class="site-header">
     <div class="wrap hdr">
-      <a class="logo" href="/" data-link aria-label="Prompt2Print"><img src="/img/logo.svg" alt="" width="34" height="34"><span>Prompt<b>2</b>Print</span></a>
+      <a class="logo" href="/" data-link aria-label="Prompt2Print"><img src="img/logo.svg" alt="" width="34" height="34"><span>Prompt<b>2</b>Print</span></a>
       <button class="deliver" type="button" data-action="deliver"><small>${t('deliver.to')}</small><strong>${countryName(state.destination.country)}</strong></button>
       <form class="search" role="search" data-search>
-        <input type="search" name="q" placeholder="${t('search.placeholder')}" aria-label="${t('search.button')}" value="${new URLSearchParams(location.search).get('q') || ''}">
+        <input type="search" name="q" placeholder="${t('search.placeholder')}" aria-label="${t('search.button')}" value="${currentUrl().searchParams.get('q') || ''}">
         <button type="submit" aria-label="${t('search.button')}">${icons.search}</button>
       </form>
       <div class="hdr-actions">
@@ -104,7 +98,7 @@ function header() {
 function footer() {
   return html`<footer class="site-footer"><div class="wrap">
     <div class="cols">
-      <div><a class="logo" href="/" data-link><img src="/img/logo.svg" alt="" width="34" height="34"><span>Prompt<b>2</b>Print</span></a><p style="margin-top:10px;max-width:36ch">${t('footer.tag')}</p></div>
+      <div><a class="logo" href="/" data-link><img src="img/logo.svg" alt="" width="34" height="34"><span>Prompt<b>2</b>Print</span></a><p style="margin-top:10px;max-width:36ch">${t('footer.tag')}</p></div>
       <div><h4>${t('footer.shop')}</h4><a href="/create" data-link>${t('nav.create')}</a><a href="/search" data-link>${t('nav.all')}</a>${state.boot.categories.slice(0, 3).map((c) => html`<a href="/c/${c.slug}" data-link>${tr(c.name)}</a>`)}</div>
       <div><h4>${t('footer.help')}</h4><a href="/#pricing" data-link>${t('footer.pricing')}</a><a href="/orders" data-link>${t('footer.track')}</a><a href="/create" data-link>${t('footer.privacy')}</a></div>
       <div><h4>${t('footer.company')}</h4><a href="/account" data-link>${t('nav.account')}</a><a href="/cart" data-link>${t('nav.cart')}</a></div>
@@ -125,7 +119,7 @@ function shell(isAdmin) {
 
 export async function render() {
   const token = ++renderToken;
-  const url = new URL(location.href);
+  const url = currentUrl();
   const m = match(url.pathname);
   const isAdmin = url.pathname.startsWith('/admin');
   const app = document.getElementById('app');
@@ -154,7 +148,6 @@ export async function render() {
   } catch (err) {
     console.error(err);
     if (err.status === 401) { navigate(`/signin?next=${encodeURIComponent(url.pathname + url.search)}`, { replace: true }); return; }
-    if (err.code === 'setting_up') { showSetup(err.body.setup); return; }
     view.innerHTML = String(html`<div class="wrap empty"><h1>${err.status === 404 ? t('common.notFound') : t('common.error')}</h1><p class="muted">${err.message}</p><a class="btn" href="/" data-link>${t('common.home')}</a></div>`);
   }
 }
@@ -191,9 +184,10 @@ async function toggleLanguage() {
 
 document.addEventListener('click', (e) => {
   const a = e.target.closest('a[data-link]');
-  if (a && !e.metaKey && !e.ctrlKey && !e.shiftKey && a.origin === location.origin) {
+  if (a && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
     e.preventDefault();
-    navigate(a.pathname + a.search + a.hash);
+    const href = a.getAttribute('href') || '/';
+    navigate(href.startsWith('#') ? href.slice(1) : href);
     return;
   }
   const action = e.target.closest('[data-action]')?.dataset.action;
@@ -209,6 +203,7 @@ document.addEventListener('submit', (e) => {
 });
 
 window.addEventListener('popstate', () => render());
+window.addEventListener('hashchange', () => render());
 
 export async function signedIn(user) {
   state.user = user;
@@ -222,9 +217,10 @@ async function boot() {
   try { saved = localStorage.getItem('p2p_locale'); } catch { /* ignore */ }
   setLocale(saved || (navigator.language?.startsWith('ar') ? 'ar' : 'en'));
   try {
-    if (!(await refreshBoot())) return;
+    await refreshBoot();
   } catch (err) {
-    document.getElementById('app').innerHTML = String(html`<div class="setup-screen"><div><h1>Prompt2Print</h1><p>${err.message}</p></div></div>`);
+    document.getElementById('app').innerHTML = String(html`<div class="setup-screen"><div><h1>Prompt2Print</h1><p>${t('common.offline')}</p><p class="small" style="color:#AEB7C1">${err.message}</p>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="location.reload()">${t('common.retry')}</button></div></div>`);
     return;
   }
   if (!saved && state.user?.locale) setLocale(state.user.locale);

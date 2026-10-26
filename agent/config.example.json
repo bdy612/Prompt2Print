@@ -1,0 +1,8 @@
+{
+  "SUPABASE_URL": "https://jxdwvzqruqdeksscazae.supabase.co",
+  "SUPABASE_SERVICE_ROLE_KEY": "paste the service_role key from Supabase → Project Settings → API (keep it on this PC only)",
+  "DATA_DIR": "",
+  "BAMBU_STUDIO_PATH": "",
+  "SLICER_PATH": "",
+  "POLL_MS": 5000
+}
