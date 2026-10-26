@@ -85,14 +85,13 @@ function orderSummary(o, { full = false } = {}) {
 }
 
 export function registerStoreRoutes(r) {
-  // Also read by the download website (bdy612.github.io) to show "installed and running" and to
-  // lead the owner to the first-start setup. Public, read-only, no personal data.
-  r.get('/api/health', (req) => ({
+  // Also read by the download website (bdy612.github.io) to show "installed and running".
+  // Public, read-only, no personal data.
+  r.get('/api/health', () => ({
     ok: true,
     name: 'Prompt2Print',
     version: config.version,
     settingUp: seedState.running ? { done: seedState.done, total: seedState.total } : null,
-    adminSetupNeeded: adminSetupNeeded(),
   }));
 
   r.get('/api/bootstrap', (req) => {

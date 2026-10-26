@@ -1,1 +1,1 @@
-44cbb6a23dbd9862db3cceebffcaae8d4418db170ea248b6ca289a952ea43452  Prompt2Print-Setup-1.1.0.msi
+5370c12d0cf0caafd85758e81a3f540ee1d5fb414d85394632cacf78b048f89b  Prompt2Print-Setup-1.1.0.msi

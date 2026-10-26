@@ -24,7 +24,6 @@
     .status .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #B9C0C7; }
     .status.wait .dot { background: #F0B429; animation: pulse 1.2s infinite; }
     .status.ok .dot { background: #2BB673; }
-    .status.setup .dot { background: var(--p2p); }
     @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
     .notice { background: #FFF6E5; border: 1px solid #F3D9A4; color: #6B4E00; border-radius: 12px; }
     code, kbd { background: #E9ECEE; color: #1E232A; padding: 2px 6px; border-radius: 6px; }
@@ -80,7 +79,6 @@
           <div class="progress mb-3 d-none" id="status-progress" role="progressbar" style="height:8px"><div class="progress-bar" style="width:0%;background:var(--p2p)"></div></div>
           <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-p2p d-none" id="status-open" href="#" data-i18n="st.open">Open Prompt2Print</a>
-            <a class="btn btn-p2p d-none" id="status-setup" href="#" data-i18n="st.setup">Finish setup: set the admin password</a>
             <a class="btn btn-outline-secondary d-none" id="status-install" href="Prompt2Print-Setup-1.1.0.msi" download data-i18n="st.download">Download the installer</a>
           </div>
         </div>
@@ -105,7 +103,7 @@
       <div class="col-md-4">
         <div class="card step p-4">
           <div class="d-flex align-items-center gap-3 mb-2"><span class="num">3</span><h3 class="h5 m-0" data-i18n="s3.title">Set up the shop</h3></div>
-          <p class="text-secondary mb-0" data-i18n="s3.text">Set the admin password (asked once, from your computer only), then under <b>Admin → Settings</b> add your Tap Payments key, a Meshy or Tripo key for AI models, and your Bambu Lab P2S printer (IP, serial number, LAN access code, AMS slots).</p>
+          <p class="text-secondary mb-0" data-i18n="s3.text">In the app, open <b>Settings</b> and add your Tap Payments key, a Meshy or Tripo key for AI models, and your Bambu Lab P2S printer (IP, serial number, LAN access code, AMS slots). Then the shop is ready for customers.</p>
         </div>
       </div>
     </div>
@@ -166,16 +164,15 @@
       install: 'تثبيت لويندوز', meta: 'الإصدار 1.1.0 · ويندوز 10/11 (64 بت) · 36 MB · ملف واحد، لا يحتاج شيئاً آخر', sha: 'SHA-256',
       'st.checking': 'جارٍ التحقق هل Prompt2Print مثبّت على هذا الجهاز…',
       'st.checkingText': 'تسأل هذه الصفحة التطبيق على جهازك (127.0.0.1) إن كان يعمل. لا يُرسل شيء إلى أي مكان آخر.',
-      'st.open': 'افتح Prompt2Print', 'st.setup': 'أكمل الإعداد: عيّن كلمة مرور الأدمن', 'st.download': 'حمّل المثبّت',
+      'st.open': 'افتح Prompt2Print', 'st.download': 'حمّل المثبّت',
       'st.none': 'لم يُكتشف Prompt2Print على هذا الجهاز', 'st.noneText': 'حمّل المثبّت وشغّله، ثم افتح Prompt2Print من سطح المكتب. تتحقق هذه الصفحة تلقائياً كل بضع ثوانٍ.',
       'st.seeding': 'التشغيل الأول: جارٍ إنشاء الكتالوج…', 'st.seedingText': 'يستغرق هذا نحو 30 ثانية في أول مرة فقط.',
-      'st.needSetup': 'Prompt2Print يعمل — بقيت خطوة واحدة', 'st.needSetupText': 'عيّن كلمة مرور حساب الأدمن (مرة واحدة، من هذا الجهاز فقط) ثم أضف المفاتيح والطابعة من الإعدادات.',
-      'st.ready': 'Prompt2Print مثبّت ويعمل', 'st.readyText': 'كل شيء جاهز. افتح المتجر، أو ادخل كأدمن لإدارة الطلبات والإعدادات.',
+      'st.ready': 'Prompt2Print مثبّت ويعمل', 'st.readyText': 'كل شيء جاهز. افتح المتجر وأكمل الإعداد من داخله.',
       'st.again': 'تحقق مرة أخرى',
       'steps.title': 'التثبيت في ثلاث خطوات',
       's1.title': 'حمّل وشغّل', 's1.text': 'اضغط <b>تثبيت لويندوز</b> ثم افتح <code>Prompt2Print-Setup-1.1.0.msi</code> من مجلد التنزيلات. إن ظهر «Windows protected your PC» اضغط <b>More info → Run anyway</b> (المثبّت غير موقّع بشهادة بعد). يُثبّت التطبيق في <code>C:\\Program Files\\Prompt2Print</code> مع اختصار على سطح المكتب.',
       's2.title': 'التشغيل الأول', 's2.text': 'افتح <b>Prompt2Print</b> من سطح المكتب. أول تشغيل يستغرق نحو 30 ثانية لإنشاء الكتالوج وصور المنتجات. عُد إلى هذه الصفحة: تكتشف التطبيق وتعرض الخطوة التالية.',
-      's3.title': 'إعداد المتجر', 's3.text': 'عيّن كلمة مرور الأدمن (تُطلب مرة واحدة ومن جهازك فقط)، ثم من <b>Admin → Settings</b> أضف مفتاح Tap للدفع، ومفتاح Meshy أو Tripo لنماذج الذكاء الاصطناعي، وطابعة Bambu Lab P2S (العنوان، الرقم التسلسلي، رمز LAN، فتحات AMS).',
+      's3.title': 'إعداد المتجر', 's3.text': 'من داخل التطبيق افتح <b>الإعدادات</b> وأضف مفتاح Tap للدفع، ومفتاح Meshy أو Tripo لنماذج الذكاء الاصطناعي، وطابعة Bambu Lab P2S (العنوان، الرقم التسلسلي، رمز LAN، فتحات AMS). بعدها المتجر جاهز للعملاء.',
       'inside.title': 'ماذا بداخله', 'inside.1': 'متجر بكتالوج وسلة وحسابات وطلبات وتتبع، عربي (RTL) وإنجليزي، يعمل على الجوال',
       'inside.2': 'إنشاء بالذكاء الاصطناعي: وصف → نموذج ثلاثي الأبعاد تدوّره وتغيّر حجمه وتسعّره قبل الشراء (Meshy/Tripo، ومولّد مدمج كبديل)',
       'inside.3': 'تسعير فوري: سعر القطعة، الضريبة والشحن حسب الدولة، رسوم الخدمة، بعملة العميل',
@@ -198,10 +195,8 @@
     EN['st.noneText'] = 'Download and run the installer, then open Prompt2Print from the desktop. This page checks again automatically every few seconds.';
     EN['st.seeding'] = 'First start: creating the catalog…';
     EN['st.seedingText'] = 'This takes about 30 seconds, only the first time.';
-    EN['st.needSetup'] = 'Prompt2Print is running — one step left';
-    EN['st.needSetupText'] = 'Set the admin password (once, from this computer only), then add your keys and printer in Settings.';
     EN['st.ready'] = 'Prompt2Print is installed and running';
-    EN['st.readyText'] = 'Everything is ready. Open the shop, or sign in as admin to manage orders and settings.';
+    EN['st.readyText'] = 'Everything is ready. Open the shop and finish the setup inside the app.';
     EN['st.again'] = 'Check again';
     let lang = localStorage.getItem('p2p-site-lang') || (navigator.language.startsWith('ar') ? 'ar' : 'en');
     const T = (k) => (lang === 'ar' ? AR[k] : EN[k]) || EN[k] || '';
@@ -216,8 +211,8 @@
 
     // ---------- Installation + bootstrap detection ----------
     // The installed app listens on 127.0.0.1 (ports 39390–39393, or 3939 when run from source).
-    // Its /api/health answers this page (CORS) with: setting up progress, whether the admin password
-    // still has to be set, and the version. The page then shows the right next step.
+    // Its /api/health answers this page (CORS) with the version and the first-start progress.
+    // The page then shows the right next step.
     const PORTS = [39390, 39391, 39392, 39393, 3939];
     let found = null;   // { port, health }
     async function probe(port) {
@@ -241,7 +236,7 @@
     function renderStatus() {
       const box = document.getElementById('status');
       const title = document.getElementById('status-title'), text = document.getElementById('status-text');
-      const open = document.getElementById('status-open'), setup = document.getElementById('status-setup'), dl = document.getElementById('status-install');
+      const open = document.getElementById('status-open'), dl = document.getElementById('status-install');
       const prog = document.getElementById('status-progress');
       let again = document.getElementById('status-again');
       if (!again) {
@@ -251,7 +246,7 @@
         dl.parentElement.appendChild(again);
       }
       again.textContent = T('st.again');
-      [open, setup, dl].forEach((b) => b.classList.add('d-none'));
+      [open, dl].forEach((b) => b.classList.add('d-none'));
       prog.classList.add('d-none');
       if (!found) {
         box.className = 'status p-4 mb-5';
@@ -268,19 +263,13 @@
         prog.firstElementChild.style.width = `${h.settingUp.total ? Math.round((100 * h.settingUp.done) / h.settingUp.total) : 5}%`;
         return;
       }
-      if (h.adminSetupNeeded) {
-        box.className = 'status setup p-4 mb-5';
-        title.textContent = T('st.needSetup'); text.textContent = T('st.needSetupText');
-        setup.href = `${base}/signin`; setup.classList.remove('d-none');
-        return;
-      }
       box.className = 'status ok p-4 mb-5';
       title.textContent = `${T('st.ready')} (v${h.version || '1.1.0'})`; text.textContent = T('st.readyText');
       open.href = `${base}/`; open.classList.remove('d-none');
     }
     applyLang();
     check();
-    setInterval(() => { if (!found || found.health.settingUp || found.health.adminSetupNeeded) check(); }, 6000);
+    setInterval(() => { if (!found || found.health.settingUp) check(); }, 6000);
   </script>
 </body>
 </html>
