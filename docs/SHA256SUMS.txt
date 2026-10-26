@@ -1,1 +1,1 @@
-4de97b747b4842907a75dc3a6ffd46ea3ff6ce69d77493f529146600e27f2010  dist/Prompt2Print-Setup-1.1.0.msi
+44cbb6a23dbd9862db3cceebffcaae8d4418db170ea248b6ca289a952ea43452  Prompt2Print-Setup-1.1.0.msi

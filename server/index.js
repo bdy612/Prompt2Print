@@ -44,6 +44,17 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://local');
     rawPath = url.pathname; // still percent-encoded; the router decodes route parameters itself
+    if (rawPath === '/api/health') {
+      // The download website may ask the local app whether it is running (CORS + private network).
+      const origin = req.headers.origin || '';
+      if (/^https:\/\/bdy612\.github\.io$/.test(origin) || /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Private-Network', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Vary', 'Origin');
+      }
+      if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+    }
     if (rawPath.startsWith('/api/')) {
       // Simple CSRF protection: state-changing API calls must come from our own scripts.
       if (req.method !== 'GET' && req.method !== 'HEAD' && !/^\/api\/payments\/(stripe|tap)\/webhook$/.test(rawPath) && req.headers['x-p2p'] !== '1') {

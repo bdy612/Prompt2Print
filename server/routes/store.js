@@ -19,6 +19,7 @@ import {
   createTapPayment, confirmTapPayment, handleTapWebhook,
 } from '../payments/index.js';
 import { config } from '../config.js';
+import { seedState } from '../seed.js';
 import { activeProvider } from '../ai/providers.js';
 import { COUNTRIES } from '../lib/countries.js';
 import { currencies, currencyFor } from '../lib/currency.js';
@@ -84,7 +85,15 @@ function orderSummary(o, { full = false } = {}) {
 }
 
 export function registerStoreRoutes(r) {
-  r.get('/api/health', () => ({ ok: true, name: 'Prompt2Print' }));
+  // Also read by the download website (bdy612.github.io) to show "installed and running" and to
+  // lead the owner to the first-start setup. Public, read-only, no personal data.
+  r.get('/api/health', (req) => ({
+    ok: true,
+    name: 'Prompt2Print',
+    version: config.version,
+    settingUp: seedState.running ? { done: seedState.done, total: seedState.total } : null,
+    adminSetupNeeded: adminSetupNeeded(),
+  }));
 
   r.get('/api/bootstrap', (req) => {
     const ctx = loadPricingContext();

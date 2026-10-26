@@ -23,8 +23,11 @@ loadDotEnv(path.join(ROOT, '.env'));
 const dataDir = path.resolve(process.env.P2P_DATA_DIR || path.join(ROOT, 'storage'));
 loadDotEnv(path.join(dataDir, '.env'));
 
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+
 export const config = {
   root: ROOT,
+  version: pkg.version,
   publicDir: path.join(ROOT, 'public'),
   dataDir,
   dbFile: path.join(dataDir, 'prompt2print.db'),

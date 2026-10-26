@@ -1,6 +1,6 @@
 # Prompt2Print
 
-A marketplace for 3D-printed products, like a small Amazon, where every item is printed to order on
+A marketplace for 3D-printed products, where every item is printed to order on
 a **Bambu Lab P2S** in **ABS** or **ASA**. Customers can buy catalog items or describe something new:
 **AI Create** turns the prompt into a 3D model they can rotate, resize and price instantly. After
 payment, the order is sliced, queued and sent to the printer automatically.
