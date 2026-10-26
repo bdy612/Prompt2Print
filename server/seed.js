@@ -169,10 +169,37 @@ export async function ensureSeeded() {
     console.log('[seed] The first setup was interrupted last time; starting it again.');
     clearIncompleteSetup();
   }
+  const upgrade = getSetting('seed_version', 0) > 0;
   seedState.running = true;
   seedState.total = PRODUCTS.length;
   const started = Date.now();
-  console.log('[seed] Creating the catalog (first start)…');
+  console.log(upgrade ? '[seed] Updating the catalog to the new rules…' : '[seed] Creating the catalog (first start)…');
+  if (upgrade) {
+    // A shop from an earlier version: keep customers and orders, replace the catalog rules.
+    // Old materials/colours that are no longer offered are switched off, old catalog items are
+    // hidden (orders still reference them), and the single P2S printer is added if missing.
+    const keepMaterials = MATERIALS.map((m) => m.code);
+    run(`UPDATE materials SET active = 0 WHERE code NOT IN (${keepMaterials.map(() => '?').join(',')})`, keepMaterials);
+    for (const m of MATERIALS) {
+      run('UPDATE materials SET price_per_gram = ?, density = ?, nozzle_temp = ?, bed_temp = ?, colors = ?, active = 1 WHERE code = ?',
+        [m.price, m.density, m.nozzle, m.bed, JSON.stringify(m.colors.map(([code, en, ar, hex]) => ({ code, name_en: en, name_ar: ar, hex, in_stock: true }))), m.code]);
+    }
+    run("UPDATE products SET active = 0 WHERE model_id IN (SELECT id FROM models WHERE source = 'catalog')");
+    // Sample accounts and their sample orders from the old demo mode.
+    const demoIds = all("SELECT id FROM users WHERE email LIKE '%@prompt2print.local' OR email LIKE '%@example.com'").map((u) => u.id);
+    if (demoIds.length) {
+      const q = demoIds.map(() => '?').join(',');
+      db.exec('PRAGMA foreign_keys = OFF');
+      try {
+        for (const t of ['print_jobs', 'order_events', 'payments', 'refunds', 'order_items']) {
+          run(`DELETE FROM ${t} WHERE order_id IN (SELECT id FROM orders WHERE user_id IN (${q}))`, demoIds);
+        }
+        for (const t of ['orders', 'cart_items', 'designs', 'wishlist', 'reviews', 'addresses', 'sessions']) run(`DELETE FROM ${t} WHERE user_id IN (${q})`, demoIds);
+        run(`DELETE FROM users WHERE id IN (${q})`, demoIds);
+      } finally { db.exec('PRAGMA foreign_keys = ON'); }
+    }
+    run("UPDATE printers SET active = 0 WHERE driver = 'simulator'");
+  }
 
   tx(() => {
     setSetting('store_name', 'Prompt2Print');
@@ -245,17 +272,23 @@ export async function ensureSeeded() {
     const [hero] = renderPhotos(model.id, { mesh: placed, color: hex, views: ['hero'] });
     const allowed = ['ABS', 'ASA'];
     const slug = en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const r = run(`INSERT INTO products(slug, category_id, model_id, name_en, name_ar, desc_en, desc_ar, default_material, default_color, allowed_materials,
+    run(`INSERT INTO products(slug, category_id, model_id, name_en, name_ar, desc_en, desc_ar, default_material, default_color, allowed_materials,
                      default_scale, min_scale, max_scale, default_infill, images, tags, featured)
-                   VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 35, ?, ?, ?)`,
+                   VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 35, ?, ?, ?)
+                   ON CONFLICT(slug) DO UPDATE SET category_id = excluded.category_id, model_id = excluded.model_id, name_en = excluded.name_en,
+                     name_ar = excluded.name_ar, desc_en = excluded.desc_en, desc_ar = excluded.desc_ar, default_material = excluded.default_material,
+                     default_color = excluded.default_color, allowed_materials = excluded.allowed_materials, default_scale = 1, min_scale = excluded.min_scale,
+                     max_scale = excluded.max_scale, default_infill = 35, images = excluded.images, tags = excluded.tags, featured = excluded.featured, active = 1`,
     [slug, cats[cat], model.id, en, ar, dEn, dAr, material, color, JSON.stringify(allowed),
       minScaleFor(model.analysis), maxScaleFor(model.analysis),
       JSON.stringify([hero]), tags, featured]);
-    pending.push({ id: Number(r.lastInsertRowid), modelId: model.id, mesh: placed, hex });
+    const productId = Number(get('SELECT id FROM products WHERE slug = ?', slug).id);
+    pending.push({ id: productId, modelId: model.id, mesh: placed, hex });
     seedState.done += 1;
     await tick(); // keep the server responsive while seeding
   }
 
+  if (upgrade) run('DELETE FROM categories WHERE id NOT IN (SELECT category_id FROM products WHERE active = 1)');
   if (config.demo) seedReviewsAndOrders(ctx); // sample reviews and orders only in demo mode
   setSetting('seed_version', SEED_VERSION);
   seedState.running = false;
