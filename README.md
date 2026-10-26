@@ -12,8 +12,8 @@ libraries to install.
 
 ## Run it on Windows
 
-**Download:** https://bdy612.github.io/Prompt2Print/ (or the
-[latest release](https://github.com/bdy612/Prompt2Print/releases/latest)).
+**Download:** https://bdy612.github.io/Prompt2Print/ (direct link:
+[Prompt2Print-Setup-1.1.0.msi](https://github.com/bdy612/Prompt2Print/raw/main/docs/Prompt2Print-Setup-1.1.0.msi)).
 
 **Option A: the installer (recommended).** Double-click `Prompt2Print-Setup-1.1.0.msi`, then open
 **Prompt2Print** from the Start menu or desktop. It opens in its own window. The first start takes
