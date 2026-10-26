@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompt2Print — Download</title>
+  <meta name="description" content="Prompt2Print: describe an object, see it in 3D, and we print it and ship it to you. Windows installer download.">
+  <style>
+    :root { --bg: #1E232A; --panel: #272D36; --text: #F3F5F7; --muted: #A9B2BC; --accent: #D6246E; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 48px 20px 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 22px; }
+    .brand b { color: var(--accent); }
+    h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 36px 0 12px; }
+    p.lead { color: var(--muted); font-size: 18px; max-width: 560px; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 16px 26px; border-radius: 12px; font-size: 18px; margin-top: 24px; }
+    .btn:hover { filter: brightness(1.08); }
+    .meta { color: var(--muted); font-size: 14px; margin-top: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 44px; }
+    .card { background: var(--panel); border-radius: 14px; padding: 18px 20px; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    ol { color: var(--muted); padding-inline-start: 22px; }
+    code { background: #0f1317; padding: 2px 6px; border-radius: 6px; font-size: 13px; }
+    .notice { margin-top: 36px; border: 1px solid #5a4a1a; background: #2d2715; color: #f1dca2; border-radius: 12px; padding: 14px 16px; font-size: 14px; }
+    footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
+    a { color: #ff7fb0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="2" fill="#D6246E"/><rect x="3" y="12" width="14" height="4" rx="2" fill="#D6246E"/><rect x="3" y="20" width="22" height="4" rx="2" fill="#fff"/></svg> Prompt<b>2</b>Print</div>
+    <h1>Describe it. We print it and ship it.</h1>
+    <p class="lead">A marketplace for 3D-printed products with AI Create: type what you want, see it in 3D, price it instantly, and it is printed to order after payment. English and Arabic.</p>
+
+    <a class="btn" href="https://github.com/bdy612/Prompt2Print/releases/latest/download/Prompt2Print-Setup-1.1.0.msi" download>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download for Windows (.msi)
+    </a>
+    <div class="meta">Version 1.1.0 · Windows 10/11 64-bit · one file, nothing else to install · <a href="https://github.com/bdy612/Prompt2Print/releases">all releases</a></div>
+
+    <div class="grid">
+      <div class="card"><h3>1. Install</h3><p>Double-click the .msi. Windows may show “Windows protected your PC”: click <b>More info → Run anyway</b> (the installer is not code-signed yet).</p></div>
+      <div class="card"><h3>2. Open</h3><p>Start <b>Prompt2Print</b> from the desktop or Start menu. The first start takes about 30 seconds while the catalog is created.</p></div>
+      <div class="card"><h3>3. Set up</h3><p>Sign in as the admin, then under Settings add your Tap Payments key, your Meshy/Tripo key for AI models, and your Bambu Lab P2S printer.</p></div>
+    </div>
+
+    <div class="notice"><b>Not for food or drink.</b> Printed items are not food-safe. Do not microwave, bake, or dishwash. Heat-resistant up to ~85°C (ABS) / ~100°C (ASA). Keep away from open flame.</div>
+
+    <footer>Source code: <a href="https://github.com/bdy612/Prompt2Print">github.com/bdy612/Prompt2Print</a> · The installer also contains the complete source in <code>C:\Program Files\Prompt2Print\app</code>.</footer>
+  </div>
+</body>
+</html>

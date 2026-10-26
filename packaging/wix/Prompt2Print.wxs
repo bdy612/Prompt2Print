@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Prompt2Print installer (built with wixl from msitools; see scripts/build-windows.sh).
+  Variables passed by the build script:
+    var.Version    MSI product version (x.y.z)
+    var.SourceDir  staging folder that mirrors the install folder
+    var.IconFile   path to prompt2print.ico
+    var.Win64      "yes"
+  The app/ and runtime/ files are harvested into the AppFiles component group (files.wxs).
+  Keep UpgradeCode fixed forever: it is how new versions find and replace old ones.
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Name="Prompt2Print"
+           Language="1033"
+           Version="$(var.Version)"
+           Manufacturer="Prompt2Print"
+           UpgradeCode="5B0D3C55-6E0A-4F61-9B8E-3F2C7A1D9E40">
+
+    <Package InstallerVersion="500"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Description="Prompt2Print"
+             Comments="Installs the Prompt2Print store and print manager."
+             Manufacturer="Prompt2Print"/>
+
+    <Media Id="1" Cabinet="prompt2print.cab" EmbedCab="yes"/>
+
+    <!-- Installing a newer version removes the older one; older versions refuse to install over newer. -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Prompt2Print is already installed."/>
+
+    <Icon Id="Prompt2Print.ico" SourceFile="$(var.IconFile)"/>
+    <Property Id="ARPPRODUCTICON" Value="Prompt2Print.ico"/>
+    <Property Id="ARPNOMODIFY" Value="1"/>
+    <Property Id="ARPCONTACT" Value="Prompt2Print"/>
+    <Property Id="ARPCOMMENTS" Value="Marketplace for 3D-printed products with AI Create."/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLDIR" Name="Prompt2Print"/>
+      </Directory>
+      <Directory Id="ProgramMenuFolder"/>
+      <Directory Id="DesktopFolder"/>
+    </Directory>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="LauncherExe" Guid="*" Win64="$(var.Win64)">
+        <File Id="Prompt2PrintExe" Name="Prompt2Print.exe" Source="$(var.SourceDir)/Prompt2Print.exe" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut" Guid="*" Win64="$(var.Win64)">
+        <Shortcut Id="StartMenuShortcut"
+                  Name="Prompt2Print"
+                  Description="Open the Prompt2Print store"
+                  Target="[INSTALLDIR]Prompt2Print.exe"
+                  WorkingDirectory="INSTALLDIR"
+                  Icon="Prompt2Print.ico"/>
+        <RegistryValue Root="HKLM" Key="Software\Prompt2Print" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="*" Win64="$(var.Win64)">
+        <Shortcut Id="DesktopShortcut"
+                  Name="Prompt2Print"
+                  Description="Open the Prompt2Print store"
+                  Target="[INSTALLDIR]Prompt2Print.exe"
+                  WorkingDirectory="INSTALLDIR"
+                  Icon="Prompt2Print.ico"/>
+        <RegistryValue Root="HKLM" Key="Software\Prompt2Print" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Main" Level="1" Title="Prompt2Print">
+      <ComponentRef Id="LauncherExe"/>
+      <ComponentRef Id="StartMenuShortcut"/>
+      <ComponentRef Id="DesktopShortcut"/>
+      <ComponentGroupRef Id="AppFiles"/>
+    </Feature>
+  </Product>
+</Wix>
