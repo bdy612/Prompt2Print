@@ -27,7 +27,10 @@ export async function processModel(input, o = {}) {
   await breathe();
   const stl = writeBinarySTL(mesh);
   // Preview: exact-ish quadric simplification for small meshes, fast clustering for big ones.
-  const reduced = triangleCount(mesh) > 30000 ? clusterSimplify(mesh, { targetTriangles: 12000 }) : buildPreview(mesh);
+  // Quadric collapse can take seconds on some flat extruded shapes, so it is only used for small
+  // meshes; everything else gets the O(n) clustering reduction.
+  const nt = triangleCount(mesh);
+  const reduced = nt > 2500 ? clusterSimplify(mesh, { targetTriangles: Math.min(12000, Math.max(600, Math.round(nt * 0.4))) }) : buildPreview(mesh);
   await breathe();
   const preview = encodePreview(reduced);
   let png = null;
