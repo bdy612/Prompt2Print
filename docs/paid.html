@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompt2Print — Payment</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #1E232A; color: #F3F5F7; display: grid; place-items: center; min-height: 100vh; text-align: center; }
+    .box { max-width: 460px; padding: 32px; }
+    h1 { font-size: 26px; margin: 0 0 10px; }
+    p { color: #A9B2BC; line-height: 1.5; }
+    .ok { color: #2BB673; font-size: 48px; }
+    .no { color: #E25555; font-size: 48px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div id="icon" class="ok">✓</div>
+    <h1 id="title">Thank you — payment received</h1>
+    <p id="text">You can close this page and go back to the Prompt2Print app. Your order will update by itself.</p>
+    <p id="ar" dir="rtl" style="color:#A9B2BC">شكراً لك — تم استلام الدفع. يمكنك إغلاق هذه الصفحة والعودة إلى تطبيق Prompt2Print؛ سيتحدّث طلبك تلقائياً.</p>
+  </div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const status = (q.get('status') || q.get('result') || '').toUpperCase();
+    if (status && !/CAPTURED|AUTHORIZED|PAID|SUCCESS/.test(status)) {
+      document.getElementById('icon').className = 'no'; document.getElementById('icon').textContent = '✕';
+      document.getElementById('title').textContent = 'The payment did not go through';
+      document.getElementById('text').textContent = 'Go back to the Prompt2Print app and try again.';
+      document.getElementById('ar').textContent = 'لم يتم الدفع. ارجع إلى تطبيق Prompt2Print وحاول مرة أخرى.';
+    }
+  </script>
+</body>
+</html>

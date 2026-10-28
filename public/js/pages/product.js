@@ -3,7 +3,7 @@ import { t, tr, getLocale } from '../i18n.js';
 import { state, destQuery } from '../state.js';
 import { html, raw, money, num, stars, productCard, toast, date, dims, countryName, icons, esc, safetyNotice } from '../ui.js';
 import { mountOptions } from '../options.js';
-import { createViewer, webglAvailable } from '../viewer.js';
+import { loadViewer, webglAvailable } from '../viewer-loader.js';
 import { setCartCount, navigate, currentUrl } from '../app.js';
 
 export default async function product(view, { params }) {
@@ -43,7 +43,7 @@ export default async function product(view, { params }) {
         <p class="error-text small" data-fragile hidden style="margin:0">${t('pdp.fragile')}</p>
         <div data-receipt></div>
         ${safetyNotice()}
-        <div class="panel" style="padding:14px 16px"><div class="opt-label" style="margin-bottom:8px">${t('pdp.printability')}</div><div data-checks></div></div>
+        <div data-checks></div>
       </div>
     </div>
 
@@ -75,7 +75,7 @@ export default async function product(view, { params }) {
     mainImg.hidden = true;
     view.querySelector('[data-note]').hidden = false;
     if (!viewer) {
-      viewer = createViewer(stage, { theme: 'light' });
+      viewer = (await loadViewer()).createViewer(stage, { theme: 'light' });
       await viewer.load(p.modelId, { color: current.colorHex, material: current.material });
       viewer.setScale(current.scale, true);
     }
@@ -109,8 +109,8 @@ export default async function product(view, { params }) {
     },
     onQuote: (q, o) => {
       big.textContent = q ? money(q.breakdown.totalCents, q.display) : '—';
-      view.querySelector('[data-fragile]').hidden = !(q && q.printability.fragile);
-      view.querySelector('[data-add]').disabled = !q || !q.printability.ok || !q.shipsToDestination;
+      view.querySelector('[data-fragile]').hidden = true;
+      const add = view.querySelector('[data-add]'); if (add) add.disabled = !q || !q.printability.ok || !q.shipsToDestination;
       if (q) {
         details.innerHTML = String(html`
           <dt>${t('pdp.dimensions')}</dt><dd>${dims(q.line.sizeMm)}</dd>

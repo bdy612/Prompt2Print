@@ -19,11 +19,14 @@ Windows installer: https://bdy612.github.io/Prompt2Print/
 ## Project layout
 
 ```
-server/      application server (no npm packages)
-public/      web interface (HTML, CSS, JavaScript, Three.js viewer)
-tests/       npm test
+public/      the app (HTML, CSS, JavaScript, Three.js viewer) — a client of the Supabase backend
+supabase/    database schema, API contract and Edge Functions
+agent/       print agent that runs on the PC next to the printers
 packaging/   Windows launcher, icon and installer definition; scripts/build-windows.sh builds the .msi
 docs/        download website
+server/      previous local-server version (kept for reference; not shipped)
 ```
 
-Run from source: install Node.js 22.13 or newer, then `npm start` and open http://127.0.0.1:3939.
+Run from source: install Node.js 22.13 or newer, `npm install`, then `npm run build:app` and open
+`app-dist/index.html` (double-click, or `npx serve app-dist`). The Windows installer is built with
+`npm run build:windows` (Linux/WSL, see the script for the tools it needs).

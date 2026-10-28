@@ -112,18 +112,8 @@ export function mountOptions(root, cfg) {
     try {
       const q = await api('/api/quote', { method: 'POST', body: { ...cfg.quoteTarget(), ...opts, ...destQuery() }, signal: ctrl.signal });
       lastQuote = q;
-      const bed = q.printability.checks.find((c) => c.id === 'bed');
       if (cfg.receiptEl) cfg.receiptEl.innerHTML = String(receipt(q));
-      if (cfg.checksEl) {
-        cfg.checksEl.innerHTML = String(html`${checksList(q.printability)}${bed?.status === 'fail' && bed.maxScale > minScale
-          ? html`<button type="button" class="btn btn-sm" data-fit style="margin-top:8px">${t('check.maxSize')}</button>` : ''}`);
-        cfg.checksEl.querySelector('[data-fit]')?.addEventListener('click', () => {
-          opts.scale = Math.floor(bed.maxScale * 100) / 100;
-          maxScale = Math.min(maxScale, opts.scale);
-          render();
-          changed();
-        });
-      }
+      if (cfg.checksEl) cfg.checksEl.innerHTML = String(checksList(q.printability));
       cfg.onQuote?.(q, opts);
     } catch (err) {
       if (err.name === 'AbortError') return;

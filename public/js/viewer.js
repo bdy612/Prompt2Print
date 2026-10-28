@@ -1,8 +1,10 @@
 // Interactive 3D preview (rotate / zoom). Shows the reduced preview mesh only — there is no
 // download, and the printable model file is never sent to the browser.
-import * as THREE from '/vendor/three/three.module.min.js';
-import { OrbitControls } from '/vendor/three/OrbitControls.js';
-import { api } from './api.js';
+import * as THREE from '../vendor/three/three.module.min.js';
+import { OrbitControls } from '../vendor/three/OrbitControls.js';
+// Runtime handles (functions url + auth headers) are published by supabase.js so this bundle
+// stays independent of the main app bundle.
+const rt = () => window.P2P_RT || { functionsUrl: '', authHeaders: async () => ({}) };
 
 const LOOKS = {
   PLA: { roughness: 0.55, metalness: 0, clearcoat: 0.1 },
@@ -18,7 +20,7 @@ const cache = new Map();
 async function fetchPreview(modelId) {
   if (cache.has(modelId)) return cache.get(modelId);
   const p = (async () => {
-    const res = await fetch(`/api/models/${encodeURIComponent(modelId)}/preview`, { headers: { 'X-P2P': '1' }, credentials: 'same-origin' });
+    const res = await fetch(`${rt().functionsUrl}/api/preview?model=${encodeURIComponent(modelId)}`, { headers: await rt().authHeaders(), cache: 'no-store' });
     if (!res.ok) throw new Error('Preview unavailable');
     const buf = await res.arrayBuffer();
     const dv = new DataView(buf);
@@ -294,4 +296,4 @@ export function createViewer(container, { theme = 'light', bed = { x: 256, y: 25
   };
 }
 
-export { api };
+

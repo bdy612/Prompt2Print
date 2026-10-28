@@ -22,7 +22,7 @@ export function lineItem(it, { editable = true, display = state.display } = {}) 
         <div class="qty"><button type="button" data-q="-1" aria-label="−">−</button><input data-qty value="${it.quantity}" inputmode="numeric" aria-label="${t('pdp.quantity')}"><button type="button" data-q="1" aria-label="+">+</button></div>
         <button class="btn btn-ghost btn-sm" data-remove>${t('cart.remove')}</button></div>` : html`<span class="small muted">× ${it.quantity}</span>`}
     </div>
-    <div class="end num" style="font-weight:600">${money(it.filamentCents, display)}<div class="tiny muted" style="font-weight:400">${t('price.filament')}</div></div>
+    <div class="end num" style="font-weight:600">${money(it.filamentCents, display)}</div>
   </div>`;
 }
 

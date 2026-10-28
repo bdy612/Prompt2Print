@@ -50,6 +50,9 @@ const L = {
     durability: 'Durability rules', minWall: 'Minimum wall thickness (mm)', infillRange: 'Infill range offered to customers (%)', maxModel: 'Largest model (mm, printer limit)', autoProvider: 'Automatic (first AI service with a key)',
     simSpeed: 'Simulated printer speed (× real time)', simFail: 'Simulated failure rate %', autoClear: 'Simulated printers clear their bed automatically',
     saved: 'Saved', notConfigured: 'needs a key', keyHint: 'Leave as is to keep the current key.',
+    nozzleMm: 'Nozzle (mm)', enclosed: 'enclosed', needsApp: 'Helper app on the printer PC', downloadApp: 'download',
+    keysCloud: 'API keys (Tripo, Meshy, Tap Payments) are stored in the cloud project, not in the app. The shop owner sets them in the Supabase dashboard (Edge Function secrets).',
+    agentTitle: 'Print agent', agentHelp: 'Printing is driven by the Prompt2Print print agent running on the PC next to your printers. It picks jobs from the queue, slices them and sends them to the printer.',
   },
   ar: {
     overview: 'نظرة عامة', orders: 'الطلبات', queue: 'قائمة الطباعة', printers: 'الطابعات', products: 'المنتجات', pricing: 'التسعير',
@@ -95,6 +98,9 @@ const L = {
     durability: 'قواعد المتانة', minWall: 'أقل سماكة جدار (مم)', infillRange: 'نطاق الحشو المتاح للعملاء (%)', maxModel: 'أكبر حجم (مم، حد الطابعة)', autoProvider: 'تلقائي (أول خدمة ذكاء اصطناعي لها مفتاح)',
     simSpeed: 'سرعة الطابعات المحاكاة (× الوقت الحقيقي)', simFail: 'نسبة الأعطال المحاكاة %', autoClear: 'الطابعات المحاكاة تُفرغ السطح تلقائياً',
     saved: 'تم الحفظ', notConfigured: 'يحتاج مفتاحاً', keyHint: 'اتركه كما هو للإبقاء على المفتاح الحالي.',
+    nozzleMm: 'الفوهة (مم)', enclosed: 'مغلقة', needsApp: 'البرنامج المساعد على جهاز الطابعة', downloadApp: 'تحميل',
+    keysCloud: 'مفاتيح API (Tripo وMeshy وTap) محفوظة في المشروع السحابي وليس في التطبيق. يضعها صاحب المتجر في لوحة Supabase (أسرار Edge Functions).',
+    agentTitle: 'وكيل الطباعة', agentHelp: 'الطباعة يديرها وكيل Prompt2Print الذي يعمل على الجهاز المجاور للطابعات: يأخذ المهام من القائمة ويقطّعها ويرسلها إلى الطابعة.',
   },
 };
 const a = (k, p = {}) => {
@@ -118,7 +124,7 @@ export default async function admin(view, { params, query }) {
   const section = params.section || 'overview';
   view.innerHTML = String(html`<div class="admin">
     <nav class="admin-nav" aria-label="Admin">
-      <a class="logo" href="/" data-link style="padding:4px 8px 16px"><img src="/img/logo.svg" alt="" width="30" height="30"><span>Prompt<b>2</b>Print</span></a>
+      <a class="logo" href="/" data-link style="padding:4px 8px 16px"><img src="img/logo.svg" alt="" width="30" height="30"><span>Prompt<b>2</b>Print</span></a>
       ${NAV.map(([g, items]) => html`<span class="grp">${a(g)}</span>${items.map((s) => html`<a href="/admin${s === 'overview' ? '' : `/${s}`}" data-link ${s === section ? raw('aria-current="page"') : ''}>${a(s)}</a>`)}`)}
       <span class="grp"></span>
       <a href="/" data-link>${a('store')}</a>
@@ -168,7 +174,7 @@ function ordersTable(list) {
 }
 
 function bindOrderRows(root) {
-  root.querySelectorAll('[data-order]').forEach((row) => row.addEventListener('click', () => openOrder(Number(row.dataset.order), () => row.closest('.admin-main') && null)));
+  root.querySelectorAll('[data-order]').forEach((row) => row.addEventListener('click', () => openOrder(row.dataset.order, () => row.closest('.admin-main') && null)));
 }
 
 // Orders ------------------------------------------------------------------------------------------
@@ -313,35 +319,47 @@ async function printers(main) {
 
 function printerForm(d, p, done) {
   const mats = state.boot.materials.map((m) => m.code);
-  const v = p || { name: 'Bambu Lab P2S', driver: 'bambu', flavor: 'bambu', bed: { x: 256, y: 256, z: 256 }, materials: mats, active: false, ams: [] };
+  const types = d.types || [];
+  const v = p || { name: '', typeCode: types[0]?.code, address: '', serial: '', access_code: '', nozzleMm: 0.4, materials: mats, active: false, ams: [] };
   const colorsOf = (code) => state.boot.materials.find((m) => m.code === code)?.colors || [];
-  const slots = [0, 1, 2, 3].map((i) => v.ams?.[i] || null);
+  const typeOf = (code) => types.find((x) => x.code === code) || types[0];
+  const t0 = typeOf(v.typeCode);
+  const slotCount = Math.max(1, t0?.slots || 1);
+  const slots = Array.from({ length: 8 }, (_, i) => v.ams?.[i] || null);
   const m = modal(String(html`<h2>${p ? a('editPrinter') : a('addPrinter')}</h2><form class="form-grid" data-f>
-    <label class="field">${a('name')}<input class="input" name="name" value="${v.name}" required></label>
-    <label class="field">${a('type')}<select class="input" name="driver">${d.drivers.map((x) => html`<option value="${x.id}" ${x.id === v.driver ? raw('selected') : ''}>${x.label}</option>`)}</select></label>
-    <label class="field full" data-f-url>${a('url')}<input class="input" name="url" value="${v.url || ''}" dir="ltr" placeholder="http://192.168.1.50"></label>
-    <label class="field" data-f-api_key>${a('apiKey')}<input class="input" name="api_key" value="${p?.hasApiKey ? '••••' : ''}" dir="ltr"></label>
+    <label class="field">${a('name')}<input class="input" name="name" value="${v.name}" required placeholder="${t0?.name || ''}"></label>
+    <label class="field">${a('type')}<select class="input" name="typeCode">${types.map((x) => html`<option value="${x.code}" ${x.code === v.typeCode ? raw('selected') : ''}>${x.vendor} ${x.name}</option>`)}</select></label>
+    <div class="field full panel" data-typeinfo style="padding:12px 14px;gap:6px"></div>
+    <label class="field full" data-f-address>${a('url')}<input class="input" name="address" value="${v.address || ''}" dir="ltr" placeholder="192.168.1.50"></label>
     <label class="field" data-f-serial>${a('serial')}<input class="input" name="serial" value="${v.serial || ''}" dir="ltr"></label>
-    <label class="field" data-f-access_code>${a('accessCode')}<input class="input" name="access_code" value="${p?.hasAccessCode ? '••••' : ''}" dir="ltr"></label>
-    <label class="field">${a('flavor')}<select class="input" name="flavor">${['marlin', 'klipper', 'bambu'].map((f) => html`<option ${f === v.flavor ? raw('selected') : ''}>${f}</option>`)}</select></label>
-    <div class="field full">${a('bed')}<div style="display:flex;gap:8px"><input class="input" name="bx" type="number" value="${v.bed.x}"><input class="input" name="by" type="number" value="${v.bed.y}"><input class="input" name="bz" type="number" value="${v.bed.z}"></div></div>
+    <label class="field" data-f-access_code>${a('accessCode')}<input class="input" name="access_code" value="${v.access_code || ''}" dir="ltr"></label>
+    <label class="field">${a('nozzleMm')}<select class="input" name="nozzleMm">${[0.2, 0.4, 0.6, 0.8].map((n) => html`<option ${Number(v.nozzleMm) === n ? raw('selected') : ''}>${n}</option>`)}</select></label>
+    <div class="field">${a('bed')}<div class="small muted" data-bed></div></div>
     <div class="field full">${a('materials')}<div class="seg">${mats.map((code) => html`<label class="btn btn-sm"><input type="checkbox" name="mat" value="${code}" ${v.materials.includes(code) ? raw('checked') : ''}> ${code}</label>`)}</div></div>
     <div class="field full">${a('ams')}<span class="hint" style="display:block;margin-top:4px">${a('amsHelp')}</span>
-      <div style="display:grid;gap:8px">${slots.map((s, i) => html`<div style="display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;align-items:center"><span class="small muted">${a('slot')} ${i + 1}</span>
+      <div style="display:grid;gap:8px" data-slots>${slots.map((s, i) => html`<div data-slot="${i}" style="display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;align-items:center" ${i < slotCount ? '' : raw('hidden')}><span class="small muted">${a('slot')} ${i + 1}</span>
         <select class="input" name="ams_mat_${i}"><option value="">${a('empty')}</option>${mats.map((c) => html`<option ${s?.material === c ? raw('selected') : ''}>${c}</option>`)}</select>
         <select class="input" name="ams_col_${i}">${(s ? colorsOf(s.material) : colorsOf(mats[0])).map((c) => html`<option value="${c.code}" ${s?.color === c.code ? raw('selected') : ''}>${tr(c.name)}</option>`)}</select></div>`)}</div></div>
-    <label class="field full">${a('profile')}<input class="input" name="slicer_profile" value="${v.slicerProfile || ''}" dir="ltr"></label>
     <label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="active" ${v.active ? raw('checked') : ''}> ${a('active')}</label>
     <div class="modal-actions full">${p ? html`<button type="button" class="btn btn-danger" data-del>${a('delete')}</button>` : ''}<button type="button" class="btn" data-close>${t('common.cancel')}</button><button class="btn btn-primary">${a('save')}</button></div>
   </form>`));
   const form = m.el.querySelector('[data-f]');
-  const syncFields = () => {
-    const drv = d.drivers.find((x) => x.id === form.driver.value);
-    for (const f of ['url', 'api_key', 'serial', 'access_code']) form.querySelector(`[data-f-${f}]`).hidden = !drv.fields.includes(f);
+  const syncType = () => {
+    const ty = typeOf(form.typeCode.value);
+    if (!ty) return;
+    const fields = { bambu: ['address', 'serial', 'access_code'], prusalink: ['address', 'access_code'], moonraker: ['address'], octoprint: ['address', 'access_code'] }[ty.driver] || ['address'];
+    for (const f of ['address', 'serial', 'access_code']) form.querySelector(`[data-f-${f}]`).hidden = !fields.includes(f);
+    form.querySelector('[data-f-access_code] input').placeholder = ty.driver === 'bambu' ? a('accessCode') : a('apiKey');
+    m.el.querySelector('[data-bed]').textContent = `${ty.bed.x} × ${ty.bed.y} × ${ty.bed.z} mm · ${a('nozzle')} ≤ ${ty.max_nozzle_c} °C · ${a('bedTemp')} ≤ ${ty.max_bed_c} °C${ty.enclosed ? ` · ${a('enclosed')}` : ''}`;
+    m.el.querySelector('[data-typeinfo]').innerHTML = String(html`<div class="small"><strong>${a('needsApp')}:</strong> ${ty.slicer_app} — <a href="${ty.slicer_url}" target="_blank" rel="noopener">${a('downloadApp')}</a></div>
+      ${(getLocale() === 'ar' ? ty.notes_ar : ty.notes_en) ? html`<div class="small muted">${getLocale() === 'ar' ? ty.notes_ar : ty.notes_en}</div>` : ''}`);
+    const n = Math.max(1, ty.slots || 1);
+    m.el.querySelectorAll('[data-slot]').forEach((row) => { row.hidden = Number(row.dataset.slot) >= n; });
+    if (!p && !form.name.value) form.name.value = `${ty.vendor} ${ty.name}`;
   };
-  form.driver.addEventListener('change', syncFields);
-  syncFields();
-  for (const i of [0, 1, 2, 3]) {
+  form.typeCode.addEventListener('change', syncType);
+  syncType();
+  for (let i = 0; i < 8; i++) {
     form[`ams_mat_${i}`].addEventListener('change', (e) => {
       form[`ams_col_${i}`].innerHTML = String(html`${colorsOf(e.target.value).map((c) => html`<option value="${c.code}">${tr(c.name)}</option>`)}`);
     });
@@ -349,11 +367,12 @@ function printerForm(d, p, done) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const f = new FormData(form);
+    const ty = typeOf(f.get('typeCode'));
+    const n = Math.max(1, ty?.slots || 1);
     const body = {
-      name: f.get('name'), driver: f.get('driver'), url: f.get('url'), api_key: f.get('api_key'), serial: f.get('serial'), access_code: f.get('access_code'),
-      flavor: f.get('flavor'), bed: { x: Number(f.get('bx')), y: Number(f.get('by')), z: Number(f.get('bz')) }, materials: f.getAll('mat'),
-      slicer_profile: f.get('slicer_profile'), active: f.get('active') === 'on',
-      ams: [0, 1, 2, 3].map((i) => ({ material: f.get(`ams_mat_${i}`), color: f.get(`ams_col_${i}`) })),
+      name: f.get('name'), typeCode: f.get('typeCode'), address: f.get('address'), serial: f.get('serial'), accessCode: f.get('access_code'), nozzleMm: Number(f.get('nozzleMm')),
+      materials: f.getAll('mat'), active: f.get('active') === 'on',
+      slots: Array.from({ length: n }, (_, i) => ({ slot: i + 1, material: f.get(`ams_mat_${i}`) || null, color: f.get(`ams_mat_${i}`) ? f.get(`ams_col_${i}`) : null })),
     };
     tryDo(() => api(p ? `/api/admin/printers/${p.id}` : '/api/admin/printers', { method: p ? 'PUT' : 'POST', body }), a('saved')).then(() => { m.close(); done(); });
   });
@@ -382,7 +401,6 @@ function productForm(p, cats, done) {
   const m = modal(String(html`<h2>${p ? a('editProduct') : a('addProduct')}</h2>
     ${!p ? html`<div class="panel" style="margin-bottom:14px;display:grid;gap:10px">
       <label class="field">${a('fromPrompt')}<div style="display:flex;gap:8px"><input class="input" data-prompt placeholder="a tall twisted vase"><button type="button" class="btn btn-dark" data-gen>${a('generate')}</button></div></label>
-      <label class="field">${a('upload')}<input type="file" data-file accept=".stl,.obj,.glb"></label>
       <div data-model-preview class="small muted"></div></div>` : html`<img src="${p.images[0] || ''}" alt="" style="width:120px;border-radius:10px;margin-bottom:10px">`}
     <form class="form-grid" data-f>
       <label class="field">${a('nameEn')}<input class="input" name="name_en" value="${v.name.en}" required></label>
@@ -412,12 +430,6 @@ function productForm(p, cats, done) {
   m.el.querySelector('[data-gen]')?.addEventListener('click', () => {
     const prompt = m.el.querySelector('[data-prompt]').value.trim();
     if (prompt) tryDo(() => api('/api/admin/models/generate', { method: 'POST', body: { prompt, seed: Math.floor(Math.random() * 1000) } })).then(showModel);
-  });
-  m.el.querySelector('[data-file]')?.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    m.el.querySelector('[data-model-preview]').innerHTML = '<span class="spinner"></span>';
-    tryDo(async () => api(`/api/admin/models/upload${qs({ name: file.name })}`, { method: 'POST', raw: await file.arrayBuffer() })).then(showModel);
   });
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -660,19 +672,14 @@ async function settings(main) {
   main.innerHTML = String(html`${head(a('settings'))}
     <form data-f style="display:grid;gap:16px;max-width:760px">
       <section class="panel form-grid"><h2 class="full" style="font-size:19px">${a('aiTitle')}</h2>
-        <label class="field">${a('provider')}<select class="input" name="ai_provider"><option value="auto" ${s.ai_provider === 'auto' ? raw('selected') : ''}>${a('autoProvider')}</option>${s.providers.map((p) => html`<option value="${p.id}" ${p.id === s.ai_provider ? raw('selected') : ''}>${p.label}${p.configured ? '' : ` (${a('notConfigured')})`}</option>`)}</select></label>
+        <p class="small muted full" style="margin:0">${a('keysCloud')}</p>
+        <label class="field">${a('provider')}<select class="input" name="ai_provider"><option value="auto" ${s.ai_provider === 'auto' ? raw('selected') : ''}>${a('autoProvider')}</option>${['tripo', 'meshy'].map((p) => html`<option value="${p}" ${p === s.ai_provider ? raw('selected') : ''}>${p === 'tripo' ? 'Tripo' : 'Meshy'}</option>`)}</select></label>
         <label class="field">${a('hourly')}<input class="input" type="number" name="ai_hourly_limit" value="${s.ai_hourly_limit}"></label>
-        <label class="field">${a('meshyKey')}<input class="input" name="meshy_api_key" value="${s.meshy_api_key}" dir="ltr" autocomplete="off"><span class="hint">${a('keyHint')}</span></label>
-        <label class="field">${a('tripoKey')}<input class="input" name="tripo_api_key" value="${s.tripo_api_key}" dir="ltr" autocomplete="off"></label>
         <label class="field">${a('defaultSize')}<input class="input" type="number" name="ai_default_size_mm" value="${s.ai_default_size_mm}"></label>
       </section>
       <section class="panel form-grid"><h2 class="full" style="font-size:19px">${a('payTitle')}</h2>
-        <label class="field full">${a('payProvider')}<select class="input" name="payment_provider"><option value="tap" ${s.payment_provider === 'tap' ? raw('selected') : ''}>Tap Payments (international cards)</option><option value="stripe" ${s.payment_provider === 'stripe' ? raw('selected') : ''}>Stripe Checkout</option>${state.boot.demo ? html`<option value="test" ${s.payment_provider === 'test' ? raw('selected') : ''}>${a('testMode')}</option>` : ''}</select></label>
+        <label class="field full">${a('payProvider')}<select class="input" name="payment_provider"><option value="tap" ${s.payment_provider === 'tap' ? raw('selected') : ''}>Tap Payments (international cards)</option></select></label>
         <p class="small muted full" style="margin:0">${a('tapHelp')}</p>
-        <label class="field">${a('tapKey')}<input class="input" name="tap_secret_key" value="${s.tap_secret_key}" dir="ltr" autocomplete="off"><span class="hint">${a('keyHint')}</span></label>
-        <label class="field">${a('tapPub')}<input class="input" name="tap_publishable_key" value="${s.tap_publishable_key}" dir="ltr" autocomplete="off"></label>
-        <label class="field">${a('stripeKey')}<input class="input" name="stripe_secret_key" value="${s.stripe_secret_key}" dir="ltr" autocomplete="off"></label>
-        <label class="field">${a('stripeHook')}<input class="input" name="stripe_webhook_secret" value="${s.stripe_webhook_secret}" dir="ltr" autocomplete="off"></label>
       </section>
       <section class="panel form-grid"><h2 class="full" style="font-size:19px">${a('currencyTitle')}</h2>
         <p class="small muted full" style="margin:0">${a('currencyHelp')}</p>
@@ -684,16 +691,11 @@ async function settings(main) {
       </section>
       <section class="panel form-grid"><h2 class="full" style="font-size:19px">${a('durability')}</h2>
         <label class="field">${a('minWall')}<input class="input" type="number" step="0.1" name="min_wall_mm" value="${s.min_wall_mm}"></label>
-        <label class="field">${a('maxModel')}<input class="input" type="number" value="${s.max_model_mm}" disabled></label>
+        <label class="field">${a('maxModel')}<input class="input" type="number" name="max_model_mm" value="${s.max_model_mm}"></label>
         <div class="field full">${a('infillRange')}<div style="display:flex;gap:8px"><input class="input" type="number" name="infill_lo" value="${s.infill_range[0]}"><input class="input" type="number" name="infill_hi" value="${s.infill_range[1]}"></div></div>
       </section>
-      <section class="panel form-grid"><h2 class="full" style="font-size:19px">${a('printTitle')}</h2>
-        <p class="small full" style="margin:0;color:${s.bambu_studio_found ? 'var(--ok)' : 'var(--warn)'}">${s.bambu_studio_found ? a('bambuFound') : a('bambuMissing')}</p>
-        <label class="field full">${a('bambuPath')}<input class="input" name="bambu_studio_path" value="${s.bambu_studio_path}" dir="ltr" placeholder="C:\\Program Files\\Bambu Studio\\bambu-studio.exe" ${s.slicer_editable ? '' : raw('disabled')}></label>
-        <label class="field full">${a('slicerPath')}<input class="input" name="slicer_path" value="${s.slicer_path}" dir="ltr" placeholder="C:\\Program Files\\Prusa3D\\PrusaSlicer\\prusa-slicer-console.exe" ${s.slicer_editable ? '' : raw('disabled')}></label>
-        <label class="field">${a('simSpeed')}<input class="input" type="number" name="simulator_speed" value="${s.simulator_speed}"></label>
-        <label class="field">${a('simFail')}<input class="input" type="number" name="simulator_failure_rate" value="${s.simulator_failure_rate}"></label>
-        <label class="field full" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="simulator_auto_clear" ${s.simulator_auto_clear ? raw('checked') : ''}> ${a('autoClear')}</label>
+      <section class="panel form-grid"><h2 class="full" style="font-size:19px">${a('agentTitle')}</h2>
+        <p class="small muted full" style="margin:0">${a('agentHelp')}</p>
       </section>
       <div><button class="btn btn-primary">${a('save')}</button></div>
     </form>`);
@@ -704,8 +706,6 @@ async function settings(main) {
   main.querySelector('[data-f]').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = formData(e.target);
-    f.simulator_auto_clear = Boolean(f.simulator_auto_clear);
-    if (!s.slicer_editable) { delete f.slicer_path; delete f.bambu_studio_path; }
     f.infill_range = [Number(f.infill_lo), Number(f.infill_hi)]; delete f.infill_lo; delete f.infill_hi;
     f.currencies = [...main.querySelectorAll('[data-cur] tr')].map((tr) => ({ code: tr.querySelector('[data-cc]').value, rate: Number(tr.querySelector('[data-cr]').value), decimals: Number(tr.querySelector('[data-cd]').value) }));
     await tryDo(() => api('/api/admin/settings', { method: 'PUT', body: f }), a('saved'));

@@ -6,7 +6,7 @@
     var.SourceDir  staging folder that mirrors the install folder
     var.IconFile   path to prompt2print.ico
     var.Win64      "yes"
-  The app/ and runtime/ files are harvested into the AppFiles component group (files.wxs).
+  The app/ files are harvested into the AppFiles component group (files.wxs).
   Keep UpgradeCode fixed forever: it is how new versions find and replace old ones.
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
@@ -21,13 +21,14 @@
              Compressed="yes"
              InstallScope="perMachine"
              Description="Prompt2Print"
-             Comments="Installs the Prompt2Print store and print manager."
+             Comments="Installs the Prompt2Print app."
              Manufacturer="Prompt2Print"/>
 
     <Media Id="1" Cabinet="prompt2print.cab" EmbedCab="yes"/>
 
     <!-- Installing a newer version removes the older one; older versions refuse to install over newer. -->
-    <MajorUpgrade DowngradeErrorMessage="A newer version of Prompt2Print is already installed."/>
+    <!-- wixl schedules RemoveExistingProducts right after InstallValidate: old files go before new ones are copied. -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of Prompt2Print is already installed."/>
 
     <Icon Id="Prompt2Print.ico" SourceFile="$(var.IconFile)"/>
     <Property Id="ARPPRODUCTICON" Value="Prompt2Print.ico"/>

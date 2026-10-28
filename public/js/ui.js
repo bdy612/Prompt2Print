@@ -96,31 +96,29 @@ export function productCard(p) {
   </a>`;
 }
 
-// The price breakdown ("receipt") shown on product, create, cart and checkout pages.
-// The price breakdown: item price, tax, shipping, service fee, total — in the destination's currency.
+// What the customer sees: one final price in their currency, nothing about how it is made up.
 export function receipt(q, { compact = false } = {}) {
   if (!q) return '';
   const b = q.breakdown;
   const d = q.display || state.display;
   return html`<div class="receipt">
-    <div class="row"><span class="k">${t('price.filament')}</span><span class="v">${money(b.filamentCents, d)}</span></div>
-    <div class="row"><span class="k">${t('price.tax')}<small>${t('price.taxHint', { rate: num(q.taxRate.rate, 2).replace(/\.?0+$/, '') })}</small></span><span class="v">${money(b.taxCents, d)}</span></div>
-    <div class="row"><span class="k">${t('price.shipping')}${q.shipping ? html`<small>${tr(q.shipping.zone)}</small>` : ''}</span><span class="v">${money(b.shippingCents, d)}</span></div>
-    <div class="row sub"><span class="k">${t('price.subtotal')}</span><span class="v">${money(b.subtotalCents, d)}</span></div>
-    <div class="row"><span class="k">${t('price.fee')}<small>${t('price.feeHint', { pct: num(b.feePercent, 2).replace(/\.?0+$/, '') })}</small></span><span class="v">${money(b.feeCents, d)}</span></div>
     <div class="row total"><span class="k">${t('price.total')}</span><span class="v">${money(b.totalCents, d)}</span></div>
+    <div class="note">${t('price.includes')} · ${t('price.delivered', { country: countryName(q.destination?.country || state.destination.country) })}</div>
     ${!compact && q.shipping ? html`<div class="note">${t('price.days', { min: q.shipping.days[0], max: q.shipping.days[1] })}</div>` : ''}
     ${q.shipsToDestination === false ? html`<div class="error-text">${t('price.noShip', { country: countryName(q.destination?.country) })}</div>` : ''}
   </div>`;
 }
 
+// One line only: a green "Printable" badge, or the single blocking reason in red. A small amber
+// note when the shape is fragile at this size.
 export function checksList(printability) {
   if (!printability) return '';
-  return html`<ul class="checks">${printability.checks.map((c) => {
-    let label = t(`check.${c.id}`);
-    if (c.id === 'supports') label = c.needsSupports ? t('check.supportsYes') : t('check.supportsNo');
-    return html`<li class="${c.status}"><span>${label}${c.status === 'fail' ? html`<br><span class="small muted">${c.detail}</span>` : ''}</span></li>`;
-  })}</ul>`;
+  const blocking = printability.checks.find((c) => c.status === 'fail');
+  return html`<div class="printable-line">
+    ${printability.ok ? html`<span class="status s-printable">${t('check.printable')}</span>`
+      : html`<span class="error-text">${blocking?.detail || t('check.notPrintable')}</span>`}
+    ${printability.fragile ? html`<div class="warn-text small">${t('pdp.fragile')}</div>` : ''}
+  </div>`;
 }
 
 export function modal(content, { onClose } = {}) {

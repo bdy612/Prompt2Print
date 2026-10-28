@@ -1,6 +1,6 @@
 {
   "name": "prompt2print",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Marketplace for 3D-printed products with AI prompt-to-3D-model creation, live pricing and automatic printing.",
   "private": true,
   "type": "module",
@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server/index.js",
     "test": "node --disable-warning=ExperimentalWarning --test \"tests/*.test.js\"",
-    "build:windows": "bash scripts/build-windows.sh"
+    "build:windows": "npm run build:app && bash scripts/build-windows.sh",
+    "build:app": "node scripts/build-app.mjs"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.49.4",

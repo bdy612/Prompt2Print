@@ -36,7 +36,7 @@ const en = {
   'pdp.ratings': '{n} ratings', 'pdp.signinReview': 'Sign in to write a review.', 'pdp.supports': 'Printed with supports; small marks may remain under overhangs.',
   'pdp.heat': 'Heat resistance', 'pdp.fragile': 'This shape has thin parts and may break if dropped. A larger size is sturdier.',
   'safety.title': 'Not for food or drink.', 'safety.text': 'Do not microwave, bake, or dishwash. Heat-resistant up to ~85°C (ABS) / ~100°C (ASA). Keep away from open flame.',
-  'pay.card': 'Pay by card (Visa, Mastercard, Apple Pay)', 'pay.redirecting': 'Taking you to the secure payment page…', 'pay.failed': 'The payment did not go through. You can try again.',
+  'pay.card': 'Pay by card (Visa, Mastercard, Apple Pay)', 'pay.waiting': 'Waiting for your payment…', 'pay.redirecting': 'Taking you to the secure payment page…', 'pay.failed': 'The payment did not go through. You can try again.',
   'pdp.sold': '{n} sold',
 
   'check.watertight': 'Watertight', 'check.bed': 'Fits our printer (max 250 mm)', 'check.min_size': 'Big enough to print', 'check.supports': 'Supports', 'check.walls': 'Walls at least 2 mm', 'check.shape': 'Sturdy shape',
@@ -45,11 +45,11 @@ const en = {
   'create.title': 'AI Create', 'create.lede': 'Describe an object. You can change the prompt, regenerate, and adjust size, material, colour and infill before you buy.',
   'create.prompt': 'Describe your object', 'create.generate': 'Generate model', 'create.regenerate': 'Regenerate', 'create.edit': 'Generate from edited prompt',
   'create.examples': 'Try one of these', 'create.versions': 'Your versions', 'create.generating': 'Shaping your model…',
-  'create.generatingHint': 'This usually takes a few seconds with the demo generator, or 1–3 minutes with a connected AI service.',
+  'create.generatingHint': 'Usually a few seconds; detailed AI models can take 1–3 minutes.',
   'create.empty': 'Your model appears here', 'create.emptyHint': 'Write a prompt on the left and press Generate.',
   'create.failed': 'This one did not work', 'create.privacy': 'The model file stays on our servers and is only sent to our printers. You get the printed item, not the file.',
   'create.sizeMm': 'Largest side (mm)', 'create.scale': 'Scale', 'create.provider': '{name}', 'create.signinToSave': 'Your designs are saved on this device. Sign in to keep them in your account.',
-  'create.adjust': 'Adjust', 'create.history': 'Recent designs', 'create.notPrintable': 'Fix the items marked in red before adding to cart.',
+  'create.adjust': 'Adjust', 'create.history': 'Recent designs', 'create.notPrintable': 'Fix the problem shown in red before adding to cart.',
 
   'cart.title': 'Your cart', 'cart.empty': 'Your cart is empty', 'cart.emptyHint': 'Browse the shop or create something new with AI.',
   'cart.remove': 'Remove', 'cart.checkout': 'Go to checkout', 'cart.summary': 'Order summary', 'cart.items': '{n} items',
@@ -87,10 +87,11 @@ const en = {
   'addr.save': 'Save address',
 
   'auth.signin': 'Sign in', 'auth.signup': 'Create account', 'auth.email': 'Email', 'auth.password': 'Password', 'auth.name': 'Your name',
-  'auth.noAccount': 'New to Prompt2Print?', 'auth.haveAccount': 'Already have an account?', 'auth.demo': 'Demo accounts for testing',
+  'auth.noAccount': 'New to Prompt2Print?', 'auth.haveAccount': 'Already have an account?',
   'auth.passwordHint': 'At least 8 characters', 'auth.welcome': 'Welcome, {name}',
-  'auth.setupTitle': 'Set the admin password', 'auth.setupHint': 'First start: choose the password for the shop admin account. This can only be done from the computer that runs the shop, once.',
-  'auth.setupConfirm': 'Repeat the password', 'auth.setupMismatch': 'The passwords do not match.', 'auth.setupHintPw': 'At least 10 characters', 'auth.setupButton': 'Save and sign in',
+  'auth.badLogin': 'Email or password is incorrect.', 'auth.emailTaken': 'An account with this email already exists. Sign in instead.', 'auth.confirmEmail': 'Confirm your email first: open the link we sent you, then sign in.',
+  'auth.tooMany': 'Too many attempts. Wait a minute and try again.', 'auth.nameRequired': 'Enter your name.', 'auth.disabled': 'This account is disabled. Contact support.',
+  'auth.checkInbox': 'Check your inbox', 'auth.checkInboxHint': 'We sent a confirmation link to {email}. Open it, then sign in.',
 
   'search.results': '{n} results for “{q}”', 'search.all': 'All products', 'search.none': 'Nothing matched', 'search.noneHint': 'Try another word, or describe it in AI Create and we will make it.',
   'sort.label': 'Sort by', 'sort.featured': 'Featured', 'sort.price_asc': 'Price: low to high', 'sort.price_desc': 'Price: high to low',
@@ -98,8 +99,8 @@ const en = {
 
   'common.loading': 'Loading…', 'common.cancel': 'Cancel', 'common.save': 'Save', 'common.close': 'Close', 'common.back': 'Back',
   'common.error': 'Something went wrong.', 'common.retry': 'Try again', 'common.notFound': 'Page not found', 'common.home': 'Go to the home page',
-  'common.mm': 'mm', 'common.g': 'g', 'common.yes': 'Yes', 'common.no': 'No', 'common.setup': 'Setting up your shop…',
-  'common.setupHint': 'Creating the catalog and product photos. This only happens the first time.',
+  'common.mm': 'mm', 'common.g': 'g', 'common.yes': 'Yes', 'common.no': 'No', 'common.offline': 'Prompt2Print could not reach the shop. Check your internet connection.',
+  'check.printable': 'Printable', 'check.notPrintable': 'Not printable',
   'footer.tag': 'AI-designed objects, printed to order and shipped to you.', 'footer.shop': 'Shop', 'footer.help': 'Help', 'footer.company': 'Prompt2Print',
   'footer.pricing': 'How pricing works', 'footer.privacy': 'Your model files stay private', 'footer.track': 'Track an order',
 };
@@ -140,7 +141,7 @@ const ar = {
   'pdp.ratings': '{n} تقييم', 'pdp.signinReview': 'سجّل الدخول لكتابة تقييم.', 'pdp.supports': 'تُطبع مع دعامات، وقد تبقى علامات صغيرة تحت الأجزاء البارزة.',
   'pdp.heat': 'مقاومة الحرارة', 'pdp.fragile': 'هذا الشكل فيه أجزاء رفيعة وقد ينكسر إذا سقط. الحجم الأكبر أمتن.',
   'safety.title': 'ليس للطعام أو الشراب.', 'safety.text': 'لا تضعه في الميكروويف أو الفرن أو غسالة الصحون. يتحمل الحرارة حتى ~85° (ABS) / ~100° (ASA). أبعده عن اللهب.',
-  'pay.card': 'ادفع بالبطاقة (فيزا، ماستركارد، Apple Pay)', 'pay.redirecting': 'جارٍ تحويلك إلى صفحة الدفع الآمنة…', 'pay.failed': 'لم تتم عملية الدفع. يمكنك المحاولة مرة أخرى.',
+  'pay.card': 'ادفع بالبطاقة (فيزا، ماستركارد، Apple Pay)', 'pay.waiting': 'بانتظار إتمام الدفع…', 'pay.redirecting': 'جارٍ تحويلك إلى صفحة الدفع الآمنة…', 'pay.failed': 'لم تتم عملية الدفع. يمكنك المحاولة مرة أخرى.',
   'pdp.sold': 'بيع {n}',
 
   'check.watertight': 'نموذج مغلق ومحكم', 'check.bed': 'يناسب طابعتنا (حتى 250 مم)', 'check.min_size': 'حجم كافٍ للطباعة', 'check.supports': 'الدعامات', 'check.walls': 'جدران لا تقل عن 2 مم', 'check.shape': 'شكل متين',
@@ -149,11 +150,11 @@ const ar = {
   'create.title': 'صمّم بالذكاء الاصطناعي', 'create.lede': 'صِف الشيء الذي تريده. يمكنك تعديل الوصف وإعادة الإنشاء وضبط الحجم والخامة واللون ونسبة الحشو قبل الشراء.',
   'create.prompt': 'صِف الشيء الذي تريده', 'create.generate': 'أنشئ النموذج', 'create.regenerate': 'أعد الإنشاء', 'create.edit': 'أنشئ من الوصف المعدّل',
   'create.examples': 'جرّب أحد هذه الأمثلة', 'create.versions': 'نسخك', 'create.generating': 'نُشكّل نموذجك…',
-  'create.generatingHint': 'يستغرق ذلك ثوانٍ مع المولّد التجريبي، أو من دقيقة إلى ثلاث مع خدمة ذكاء اصطناعي متصلة.',
+  'create.generatingHint': 'عادةً ثوانٍ قليلة؛ النماذج المفصّلة بالذكاء الاصطناعي قد تستغرق من دقيقة إلى ثلاث.',
   'create.empty': 'سيظهر نموذجك هنا', 'create.emptyHint': 'اكتب وصفاً ثم اضغط «أنشئ النموذج».',
   'create.failed': 'لم ينجح هذا التصميم', 'create.privacy': 'يبقى ملف النموذج على خوادمنا ويُرسل إلى طابعاتنا فقط. تحصل على القطعة المطبوعة وليس الملف.',
   'create.sizeMm': 'أطول ضلع (مم)', 'create.scale': 'المقياس', 'create.provider': '{name}', 'create.signinToSave': 'تصاميمك محفوظة على هذا الجهاز. سجّل الدخول لحفظها في حسابك.',
-  'create.adjust': 'التعديل', 'create.history': 'تصاميم حديثة', 'create.notPrintable': 'عالج البنود المعلّمة بالأحمر قبل الإضافة إلى السلة.',
+  'create.adjust': 'التعديل', 'create.history': 'تصاميم حديثة', 'create.notPrintable': 'عالج المشكلة الظاهرة بالأحمر قبل الإضافة إلى السلة.',
 
   'cart.title': 'سلتك', 'cart.empty': 'سلتك فارغة', 'cart.emptyHint': 'تصفّح المتجر أو صمّم شيئاً جديداً بالذكاء الاصطناعي.',
   'cart.remove': 'إزالة', 'cart.checkout': 'إتمام الشراء', 'cart.summary': 'ملخص الطلب', 'cart.items': '{n} قطع',
@@ -191,10 +192,11 @@ const ar = {
   'addr.save': 'حفظ العنوان',
 
   'auth.signin': 'تسجيل الدخول', 'auth.signup': 'إنشاء حساب', 'auth.email': 'البريد الإلكتروني', 'auth.password': 'كلمة المرور', 'auth.name': 'اسمك',
-  'auth.noAccount': 'جديد على Prompt2Print؟', 'auth.haveAccount': 'لديك حساب بالفعل؟', 'auth.demo': 'حسابات تجريبية للاختبار',
+  'auth.noAccount': 'جديد على Prompt2Print؟', 'auth.haveAccount': 'لديك حساب بالفعل؟',
   'auth.passwordHint': '8 أحرف على الأقل', 'auth.welcome': 'أهلاً، {name}',
-  'auth.setupTitle': 'تعيين كلمة مرور الأدمن', 'auth.setupHint': 'أول تشغيل: اختر كلمة مرور حساب أدمن المتجر. يتم هذا مرة واحدة فقط ومن الجهاز الذي يشغّل المتجر.',
-  'auth.setupConfirm': 'أعد كتابة كلمة المرور', 'auth.setupMismatch': 'كلمتا المرور غير متطابقتين.', 'auth.setupHintPw': '10 أحرف على الأقل', 'auth.setupButton': 'حفظ وتسجيل الدخول',
+  'auth.badLogin': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'auth.emailTaken': 'يوجد حساب بهذا البريد بالفعل. سجّل الدخول بدلاً من ذلك.', 'auth.confirmEmail': 'أكّد بريدك أولاً: افتح الرابط الذي أرسلناه لك ثم سجّل الدخول.',
+  'auth.tooMany': 'محاولات كثيرة. انتظر دقيقة وحاول مرة أخرى.', 'auth.nameRequired': 'اكتب اسمك.', 'auth.disabled': 'هذا الحساب معطّل. تواصل مع الدعم.',
+  'auth.checkInbox': 'تحقق من بريدك', 'auth.checkInboxHint': 'أرسلنا رابط تأكيد إلى {email}. افتحه ثم سجّل الدخول.',
 
   'search.results': '{n} نتيجة لـ «{q}»', 'search.all': 'كل المنتجات', 'search.none': 'لا توجد نتائج', 'search.noneHint': 'جرّب كلمة أخرى، أو صِفه في «صمّم بالذكاء الاصطناعي» وسنصنعه لك.',
   'sort.label': 'ترتيب حسب', 'sort.featured': 'المميزة', 'sort.price_asc': 'السعر: من الأقل', 'sort.price_desc': 'السعر: من الأعلى',
@@ -202,8 +204,8 @@ const ar = {
 
   'common.loading': 'جارٍ التحميل…', 'common.cancel': 'إلغاء', 'common.save': 'حفظ', 'common.close': 'إغلاق', 'common.back': 'رجوع',
   'common.error': 'حدث خطأ ما.', 'common.retry': 'حاول مرة أخرى', 'common.notFound': 'الصفحة غير موجودة', 'common.home': 'العودة إلى الصفحة الرئيسية',
-  'common.mm': 'مم', 'common.g': 'غ', 'common.yes': 'نعم', 'common.no': 'لا', 'common.setup': 'نجهّز متجرك…',
-  'common.setupHint': 'ننشئ المنتجات وصورها. يحدث هذا في المرة الأولى فقط.',
+  'common.mm': 'مم', 'common.g': 'غ', 'common.yes': 'نعم', 'common.no': 'لا', 'common.offline': 'تعذّر الوصول إلى المتجر. تحقق من اتصالك بالإنترنت.',
+  'check.printable': 'قابل للطباعة', 'check.notPrintable': 'غير قابل للطباعة',
   'footer.tag': 'قطع مصممة بالذكاء الاصطناعي، تُطبع حسب الطلب وتُشحن إليك.', 'footer.shop': 'المتجر', 'footer.help': 'المساعدة', 'footer.company': 'Prompt2Print',
   'footer.pricing': 'كيف نحسب السعر', 'footer.privacy': 'ملفات نماذجك تبقى خاصة', 'footer.track': 'تتبّع طلباً',
 };

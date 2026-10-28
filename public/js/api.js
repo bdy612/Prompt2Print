@@ -33,8 +33,9 @@ function unwrap({ data, error }, status = 400) {
 }
 
 // Edge Function call with JSON in/out.
+// All edge routes live under one function: /functions/v1/api/<route>.
 export async function callFn(name, body, { method = 'POST' } = {}) {
-  const res = await fetch(`${FUNCTIONS_URL}/${name}`, {
+  const res = await fetch(`${FUNCTIONS_URL}/api/${name}`, {
     method, headers: { ...(await authHeaders()), 'Content-Type': 'application/json' }, body: method === 'GET' ? undefined : JSON.stringify(body || {}),
   });
   const text = await res.text();
@@ -171,20 +172,36 @@ let catalogAt = 0;
 let ratings = null;    // product_id -> { avg, count, dist }
 const PRODUCT_COLS = 'id,slug,category_id,model_id,name_en,name_ar,desc_en,desc_ar,default_material,default_color,allowed_materials,default_scale,min_scale,max_scale,default_infill,images,tags,featured,sold_count,created_at,models(analysis)';
 
-async function loadCatalog({ fresh = false } = {}) {
-  if (catalog && Date.now() - catalogAt < 60e3 && !fresh) return catalog;
+const CATALOG_KEY = 'p2p_catalog_v2';
+async function fetchCatalog() {
   const [prods, revs] = await Promise.all([
     sb.from('products').select(PRODUCT_COLS).eq('active', true).order('featured', { ascending: false }).order('sold_count', { ascending: false }),
     sb.from('reviews').select('product_id,rating'),
   ]);
-  catalog = (unwrap(prods) || []).map((p) => ({ ...p, images: (p.images || []).map(mediaUrl), allowed_materials: p.allowed_materials || ['ABS', 'ASA'], analysis: p.models?.analysis || null }));
-  catalogAt = Date.now();
-  ratings = {};
+  const list = (unwrap(prods) || []).map((p) => ({ ...p, images: (p.images || []).map(mediaUrl), allowed_materials: p.allowed_materials || ['ABS', 'ASA'], analysis: p.models?.analysis || null, models: undefined }));
+  const rt = {};
   for (const r of unwrap(revs) || []) {
-    const x = ratings[r.product_id] || (ratings[r.product_id] = { sum: 0, count: 0, dist: {} });
+    const x = rt[r.product_id] || (rt[r.product_id] = { sum: 0, count: 0, dist: {} });
     x.sum += r.rating; x.count += 1; x.dist[r.rating] = (x.dist[r.rating] || 0) + 1;
   }
+  return { list, rt };
+}
+function saveCatalog({ list, rt }) {
+  catalog = list; ratings = rt; catalogAt = Date.now();
+  try { localStorage.setItem(CATALOG_KEY, JSON.stringify({ at: catalogAt, list, rt })); } catch { /* ignore */ }
   return catalog;
+}
+// The catalog is small (a few dozen items): it is loaded once, kept on the device, shown at once
+// on the next start and refreshed in the background.
+async function loadCatalog({ fresh = false } = {}) {
+  if (catalog && Date.now() - catalogAt < 60e3 && !fresh) return catalog;
+  if (!catalog && !fresh) {
+    try {
+      const c = JSON.parse(localStorage.getItem(CATALOG_KEY) || 'null');
+      if (c && Array.isArray(c.list) && Date.now() - c.at < 10 * 60e3) { catalog = c.list; ratings = c.rt || {}; catalogAt = c.at; fetchCatalog().then(saveCatalog).catch(() => {}); return catalog; }
+    } catch { /* ignore */ }
+  }
+  return saveCatalog(await fetchCatalog());
 }
 const ratingOf = (id) => { const x = ratings?.[id]; return x ? { rating: Math.round((x.sum / x.count) * 10) / 10, count: x.count, dist: x.dist } : { rating: 0, count: 0, dist: {} }; };
 
@@ -195,8 +212,10 @@ function productBase(p) {
     soldCount: p.sold_count, featured: Boolean(p.featured), categoryId: p.category_id,
   };
 }
+// A product's starting size never sits below its smallest safe size (2 mm walls).
+const defaultScaleOf = (p) => Math.min(Number(p.max_scale) || 3, Math.max(Number(p.default_scale) || 1, Number(p.min_scale) || 0));
 function defaultLine(p) {
-  return { analysis: p.analysis, material: p.default_material, color: p.default_color, scale: Number(p.default_scale), infill: p.default_infill, quantity: 1, allowedMaterials: p.allowed_materials, minScale: Number(p.min_scale), maxScale: Number(p.max_scale) };
+  return { analysis: p.analysis, material: p.default_material, color: p.default_color, scale: defaultScaleOf(p), infill: p.default_infill, quantity: 1, allowedMaterials: p.allowed_materials, minScale: Number(p.min_scale), maxScale: Number(p.max_scale) };
 }
 function productCard(p, ctx, dest) {
   let price = null;
@@ -261,7 +280,7 @@ async function productDetail(slug, q) {
   return {
     ...productBase(p), description: { en: p.desc_en, ar: p.desc_ar }, category: cat ? { slug: cat.slug, name: { en: cat.name_en, ar: cat.name_ar } } : null,
     modelId: p.model_id, analysis: pricing.publicAnalysis(p.analysis),
-    defaults: { material: p.default_material, color: p.default_color, scale: Number(p.default_scale), infill: p.default_infill },
+    defaults: { material: p.default_material, color: p.default_color, scale: defaultScaleOf(p), infill: p.default_infill },
     allowedMaterials: p.allowed_materials, minScale: Number(p.min_scale), maxScale: Number(p.max_scale), inWishlist, ratingDistribution: rt.dist, related, destination: dest,
   };
 }
@@ -738,6 +757,7 @@ on('PUT', '/api/admin/users/:id', async (p, q, b) => { requireAdmin(); const pat
 on('GET', '/api/admin/audit', async () => { requireAdmin(); return (unwrap(await sb.from('audit_log').select('*').order('created_at', { ascending: false }).limit(100)) || []).map((x) => ({ ...x, detail: typeof x.detail === 'object' ? (x.detail?.detail || JSON.stringify(x.detail)) : x.detail })); });
 on('GET', '/api/admin/reports', (p, q) => adminReports(Number(q.days) || 30));
 
+if (typeof window !== "undefined") window.__p2pApi = (...a) => api(...a);
 export async function api(path, { method = 'GET', body } = {}) {
   const [pathname, search = ''] = String(path).split('?');
   const query = Object.fromEntries(new URLSearchParams(search));

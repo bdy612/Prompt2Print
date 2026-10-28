@@ -29,3 +29,6 @@ export function mediaUrl(p) {
   if (/^https?:\/\//.test(p)) return p;
   return `${MEDIA_URL}/${String(p).replace(/^\/+/, '')}`;
 }
+
+// Shared with the separately loaded viewer bundle.
+window.P2P_RT = { functionsUrl: FUNCTIONS_URL, authHeaders };

@@ -1,8 +1,8 @@
 import { api, qs } from '../api.js';
 import { t, tr, isAr } from '../i18n.js';
 import { state, destQuery } from '../state.js';
-import { html, productCard, money, num, countryName, raw } from '../ui.js';
-import { createViewer, webglAvailable } from '../viewer.js';
+import { html, productCard, num, raw } from '../ui.js';
+import { loadViewer, webglAvailable } from '../viewer-loader.js';
 
 // Catalog items shown printing in the hero, with the prompt that made them.
 const HERO = [
@@ -18,15 +18,10 @@ const EXAMPLES = {
 };
 
 export default async function home(view, { navigate }) {
-  const [featured, best, example] = await Promise.all([
+  const [featured, best] = await Promise.all([
     api(`/api/products${qs({ featured: 1, limit: 8, ...destQuery() })}`),
     api(`/api/products${qs({ sort: 'bestselling', limit: 8, ...destQuery() })}`),
-    api('/api/quote', { method: 'POST', body: { productSlug: 'honeycomb-pen-cup', material: 'ABS', color: 'black', scale: 1, infill: 35, quantity: 1, ...destQuery() } }).catch(() => null),
   ]);
-  const tiers = state.boot.feeTiers;
-  const threshold = tiers.find((x) => x.maxCents !== null)?.maxCents ?? 10000;
-  const lowPct = tiers.find((x) => x.maxCents !== null)?.percent ?? 15;
-  const highPct = tiers.find((x) => x.maxCents === null)?.percent ?? 5;
   const lang = isAr() ? 'ar' : 'en';
 
   view.innerHTML = String(html`
@@ -56,35 +51,12 @@ export default async function home(view, { navigate }) {
 
   <section class="section wrap">
     <div class="section-head"><h2>${t('home.featured')}</h2><a href="/search?sort=featured" data-link>${t('home.seeAll')}</a></div>
-    <div class="grid">${featured.items.map(productCard)}</div>
-  </section>
-
-  <section class="section wrap" id="pricing">
-    <div class="pricing-section">
-      <div>
-        <h2>${t('home.priceTitle')}</h2>
-        <p class="muted" style="margin-top:10px">${t('home.priceLede')}</p>
-        <div class="fee-rule">
-          <div><b>${num(lowPct)}%</b>${t('home.feeLabel')}<br><span class="muted small">${t('home.feeSmall', { amount: money(threshold).replace(/\.00$/, '') })}</span></div>
-          <div><b>${num(highPct)}%</b>${t('home.feeLabel')}<br><span class="muted small">${t('home.feeLarge', { amount: money(threshold).replace(/\.00$/, '') })}</span></div>
-        </div>
-      </div>
-      ${example ? html`<div>
-        <p class="small muted" style="margin-bottom:10px">${t('home.example', { country: countryName(example.destination.country) })}</p>
-        <div class="formula">
-          <div class="term"><b>${money(example.breakdown.filamentCents, example.display)}</b><span>${t('price.filament')}</span></div><span class="op">+</span>
-          <div class="term"><b>${money(example.breakdown.taxCents, example.display)}</b><span>${t('price.tax')} ${num(example.taxRate.rate)}%</span></div><span class="op">+</span>
-          <div class="term"><b>${money(example.breakdown.shippingCents, example.display)}</b><span>${t('price.shipping')}</span></div><span class="op">+</span>
-          <div class="term"><b>${money(example.breakdown.feeCents, example.display)}</b><span>${t('price.fee')} ${num(example.breakdown.feePercent)}%</span></div><span class="op">=</span>
-          <div class="term total"><b>${money(example.breakdown.totalCents, example.display)}</b><span>${t('price.total')}</span></div>
-        </div>
-      </div>` : ''}
-    </div>
+    ${featured.items.length ? html`<div class="grid">${featured.items.map(productCard)}</div>` : html`<p class="muted">${t('search.none')}</p>`}
   </section>
 
   <section class="section wrap">
     <div class="section-head"><h2>${t('home.best')}</h2><a href="/search?sort=bestselling" data-link>${t('home.seeAll')}</a></div>
-    <div class="grid">${best.items.map(productCard)}</div>
+    ${best.items.length ? html`<div class="grid">${best.items.map(productCard)}</div>` : html`<p class="muted">${t('search.none')}</p>`}
   </section>`);
 
   // Prompt box
@@ -106,8 +78,9 @@ export default async function home(view, { navigate }) {
   const stage = view.querySelector('[data-stage]');
   let viewer = null;
   let stopped = false;
-  if (webglAvailable()) {
-    viewer = createViewer(stage, { theme: 'dark', autoRotate: false, interactive: true });
+  if (webglAvailable()) (async () => {
+    viewer = (await loadViewer()).createViewer(stage, { theme: 'dark', autoRotate: false, interactive: true });
+    if (stopped) { viewer.dispose(); return; }
     const items = (await Promise.all(HERO.map((h) => api(`/api/products/${h.slug}`).then((p) => ({ ...h, p })).catch(() => null)))).filter(Boolean);
     const promptEl = view.querySelector('[data-hero-prompt]');
     const meter = view.querySelector('[data-meter]');
@@ -129,7 +102,7 @@ export default async function home(view, { navigate }) {
         await new Promise((r) => setTimeout(r, 3800));
       }
     })();
-  }
+  })().catch(() => {});
   return () => { stopped = true; viewer?.dispose(); };
 }
 

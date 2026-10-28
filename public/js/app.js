@@ -100,7 +100,7 @@ function footer() {
     <div class="cols">
       <div><a class="logo" href="/" data-link><img src="img/logo.svg" alt="" width="34" height="34"><span>Prompt<b>2</b>Print</span></a><p style="margin-top:10px;max-width:36ch">${t('footer.tag')}</p></div>
       <div><h4>${t('footer.shop')}</h4><a href="/create" data-link>${t('nav.create')}</a><a href="/search" data-link>${t('nav.all')}</a>${state.boot.categories.slice(0, 3).map((c) => html`<a href="/c/${c.slug}" data-link>${tr(c.name)}</a>`)}</div>
-      <div><h4>${t('footer.help')}</h4><a href="/#pricing" data-link>${t('footer.pricing')}</a><a href="/orders" data-link>${t('footer.track')}</a><a href="/create" data-link>${t('footer.privacy')}</a></div>
+      <div><h4>${t('footer.help')}</h4><a href="/orders" data-link>${t('footer.track')}</a><a href="/create" data-link>${t('footer.privacy')}</a></div>
       <div><h4>${t('footer.company')}</h4><a href="/account" data-link>${t('nav.account')}</a><a href="/cart" data-link>${t('nav.cart')}</a></div>
     </div>
     <div class="legal">© ${new Date().getFullYear()} ${state.boot.storeName}</div>
@@ -119,6 +119,7 @@ function shell(isAdmin) {
 
 export async function render() {
   const token = ++renderToken;
+  document.querySelectorAll('.modal-back').forEach((m) => m.remove()); // a page change closes any open dialog
   const url = currentUrl();
   const m = match(url.pathname);
   const isAdmin = url.pathname.startsWith('/admin');
@@ -202,7 +203,8 @@ document.addEventListener('submit', (e) => {
   navigate(`/search${qs({ q })}`);
 });
 
-window.addEventListener('popstate', () => render());
+// Routes live in the hash, so back/forward arrive as hashchange (popstate would render twice and
+// leave a disposed page in the DOM).
 window.addEventListener('hashchange', () => render());
 
 export async function signedIn(user) {

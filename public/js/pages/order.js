@@ -42,6 +42,8 @@ export default async function order(view, { params, query, navigate }) {
   o = o || await api(`/api/orders/${params.number}`);
   if (query.cancelled) toast(t('pay.cancelled'), 'err');
   let timer = null;
+  let awaitingPayment = false;
+  let pendingCharge = null;
 
   function render() {
     const od = o.display ? { currency: o.display.currency, rate: o.display.rate, decimals: o.pricing.display?.decimals ?? 2 } : { currency: o.currency, rate: 1, decimals: 2 };
@@ -81,12 +83,8 @@ export default async function order(view, { params, query, navigate }) {
         </div>
         <aside class="sticky">
           <div class="receipt">
-            <div class="row"><span class="k">${t('price.filament')}</span><span class="v">${money(o.pricing.filamentCents, od)}</span></div>
-            <div class="row"><span class="k">${t('price.tax')} <small>${t('price.taxHint', { rate: num(o.pricing.taxRate?.rate || 0, 2).replace(/\.?0+$/, '') })}</small></span><span class="v">${money(o.pricing.taxCents, od)}</span></div>
-            <div class="row"><span class="k">${t('price.shipping')}</span><span class="v">${money(o.pricing.shippingCents, od)}</span></div>
-            <div class="row sub"><span class="k">${t('price.subtotal')}</span><span class="v">${money(o.pricing.subtotalCents, od)}</span></div>
-            <div class="row"><span class="k">${t('price.fee')} <small>${t('price.feeHint', { pct: num(o.pricing.feePercent) })}</small></span><span class="v">${money(o.pricing.feeCents, od)}</span></div>
             <div class="row total"><span class="k">${t('price.total')}</span><span class="v">${money(o.totalCents, od)}</span></div>
+            <div class="note">${t('price.includes')} · ${t('price.delivered', { country: countryName(o.address?.country) })}</div>
           </div>
           <div class="panel"><h3 style="font-size:15px;margin-bottom:6px">${t('order.shipTo')}</h3><p class="small" style="margin:0">${o.address.fullName}<br>${addressText(o.address)}</p></div>
         </aside>
@@ -113,22 +111,37 @@ export default async function order(view, { params, query, navigate }) {
       const btn = e.currentTarget;
       btn.disabled = true;
       btn.textContent = t('pay.redirecting');
-      try { location.href = (await api(`/api/orders/${o.number}/pay/${btn.dataset.gateway}`, { method: 'POST' })).redirectUrl; } catch (err) { toast(err.message, 'err'); btn.disabled = false; btn.textContent = t('pay.card'); }
+      try {
+        const r = await api(`/api/orders/${o.number}/pay/${btn.dataset.gateway}`, { method: 'POST' });
+        // The card page opens in the browser; this page waits for the payment to be confirmed.
+        const w = window.open(r.redirectUrl, '_blank', 'noopener');
+        if (!w) location.href = r.redirectUrl;
+        pendingCharge = r.tapId || r.chargeId || r.id || null;
+        btn.textContent = t('pay.waiting');
+        awaitingPayment = true;
+        poll();
+      } catch (err) { toast(err.message, 'err'); btn.disabled = false; btn.textContent = t('pay.card'); }
     });
   }
 
   function poll() {
     clearInterval(timer);
-    if (!['paid', 'in_queue', 'printing'].includes(o.status)) return;
+    const live = () => ['paid', 'in_queue', 'printing'].includes(o.status) || (awaitingPayment && o.status === 'pending_payment');
+    if (!live()) return;
     timer = setInterval(async () => {
       try {
-        const next = await api(`/api/orders/${o.number}`);
+        let next;
+        if (awaitingPayment && o.status === 'pending_payment' && pendingCharge) {
+          next = await api(`/api/orders/${o.number}/confirm`, { method: 'POST', body: { tapId: pendingCharge } }).catch(() => null);
+        }
+        next = next || await api(`/api/orders/${o.number}`);
         const changed = JSON.stringify(next) !== JSON.stringify(o);
+        if (changed && o.status === 'pending_payment' && next.status !== 'pending_payment') { awaitingPayment = false; toast(t('pay.success')); }
         o = next;
         if (changed) render();
-        if (!['paid', 'in_queue', 'printing'].includes(o.status)) clearInterval(timer);
+        if (!live()) clearInterval(timer);
       } catch { /* retry next tick */ }
-    }, 3000);
+    }, 4000);
   }
 
   render();

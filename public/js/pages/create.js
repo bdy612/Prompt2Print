@@ -3,7 +3,7 @@ import { t, tr, isAr } from '../i18n.js';
 import { state, destQuery } from '../state.js';
 import { html, raw, money, num, toast, dims, esc, safetyNotice } from '../ui.js';
 import { mountOptions } from '../options.js';
-import { createViewer, webglAvailable } from '../viewer.js';
+import { loadViewer, webglAvailable } from '../viewer-loader.js';
 import { setCartCount, replaceUrl } from '../app.js';
 
 const EXAMPLES = {
@@ -54,7 +54,7 @@ export default async function create(view, { query }) {
       </div>
       <div class="create-col" data-right hidden>
         <div class="panel buybox" data-options style="gap:16px"></div>
-        <div class="panel" style="padding:14px 16px"><div class="opt-label" style="margin-bottom:8px">${t('pdp.printability')}</div><div data-checks></div></div>
+        <div data-checks></div>
         <div data-receipt></div>
         <button class="btn btn-primary btn-block" data-add style="min-height:50px">${t('pdp.add')}</button>
       </div>
@@ -99,7 +99,7 @@ export default async function create(view, { query }) {
     view.querySelector('[data-provider]').textContent = t('create.provider', { name: d.provider === 'demo' ? 'Prompt2Print' : `Prompt2Print · ${d.provider}` });
     right.hidden = false;
     if (webglAvailable()) {
-      if (!viewer) viewer = createViewer(stage, { theme: 'dark' });
+      if (!viewer) viewer = (await loadViewer()).createViewer(stage, { theme: 'dark' });
       await viewer.load(d.modelId, { color: state.boot.materials[0]?.colors[0]?.hex || '#1E1F22', material: 'ABS' });
       viewer.setScale(1, true);
     } else {
@@ -123,6 +123,7 @@ export default async function create(view, { query }) {
       },
       onQuote: (q) => {
         const add = view.querySelector('[data-add]');
+        if (!add) return;
         add.disabled = !q || !q.printability.ok || !q.shipsToDestination;
         add.title = q && !q.printability.ok ? t('create.notPrintable') : '';
       },
@@ -146,7 +147,7 @@ export default async function create(view, { query }) {
           if (current?.id === id) select(d);
           else renderVersions();
         }
-      } catch { /* keep polling */ }
+      } catch (err) { console.error('[create] poll', err); /* keep polling */ }
     }, 1000);
   }
 
